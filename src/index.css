@@ -2,3 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
+.card-uiverse {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  background: #FFF8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* corners */
+.card-uiverse::before,
+.card-uiverse::after {
+  position: absolute;
+  content: "";
+  width: 20%;
+  height: 20%;
+  background-color:  #8C5A3C; /* light gray */
+  transition: all 0.5s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-uiverse::before {
+  top: 0;
+  right: 0;
+  border-radius: 0 15px 0 100%;
+}
+
+.card-uiverse::after {
+  bottom: 0;
+  left: 0;
+  border-radius: 0 100% 0 15px;
+}
+
+/* hover animation */
+.card-uiverse:hover::before,
+.card-uiverse:hover::after {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+}
+
+/* content layering */
+.card-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 20px;
+}
+
+.card-hover-text {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card-uiverse:hover .card-hover-text {
+    color: #FFF8F0;
+  opacity: 1;
+  transition: color 0.4s ease;
+}
+
+.card-uiverse:hover .card-title {
+    color: #FFF8F0;
+  opacity: 0;
+  transition: color 0.4s ease;
+}

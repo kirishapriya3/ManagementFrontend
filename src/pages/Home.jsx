@@ -1,115 +1,164 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import Pattern from "../components/Pattern";
+
+// function to split letters
+const splitLetters = (text) => text.split("");
 
 export default function Home(){
+ const title = "Welcome to StayMate";
+  const subtitle = "Where Home Meets Excellence";
 
 return(
   <div className="min-h-screen bg-[#4B2E2B] text-[#FFF8F0]">
-    {/* Navigation Header */}
-    {/* <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold">
-                StayMate Management
-              </h1>
-            </div>
-          </div>
-          <div className="flex space-x-4">
-            <Link 
-              to="/login" 
-              className="border-2 border-[#FFF8F0] text-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 font-semibold"
-            >
-              Login
-            </Link>
-            <Link 
-              to="/register" 
-              className="bg-[#FFF8F0] text-[#4B2E2B] px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors font-medium"
-            >
-              Register
-            </Link>
-          </div>
-        </div>
-      </div>
-    </header> */}
 
     {/* Hero Section with Building Image */}
-    <section className="relative">
-      {/* <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-90"></div> */}
-      <div 
-        className="relative h-screen bg-cover bg-center"
-        // style={{
-        //   backgroundImage: `url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`
-        // }}
-      >
-        <div className="relative h-full flex items-center justify-center">
-          <div className="text-center text-[#FFF8F0] px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 mt-28 animate-fade-in">
-              Welcome to StayMate
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 font-light">
-              Where Home Meets Excellence
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/register" 
-                className="border-2 border-[#FFF8F0] text-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-[#FFF8F0] hover:text-[#4B2E2B] transition-all duration-300 transform hover:scale-105 font-semibold"
-              >
-                Get Started
-              </Link>
-              <Link 
-                to="/login" 
-                className="border-2 border-[#FFF8F0] text-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-[#FFF8F0] hover:text-[#4B2E2B] transition-all duration-300 transform hover:scale-105 font-semibold"
-              >
-                Sign In
-              </Link>
+     <section className="relative">
+        <div className="relative h-screen bg-cover bg-center">
+          <div className="relative h-full flex items-center justify-center">
+            <div className="text-center px-4">
+
+              {/* TITLE */}
+             <motion.h1
+  className="text-5xl md:text-6xl font-bold mb-6 mt-28 flex flex-wrap justify-center"
+  style={{ fontFamily: 'Inter, sans-serif' }}
+>
+  {splitLetters(title).map((char, index) => (
+    <motion.span
+      key={index}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{
+        delay: index * 0.05,  // fast letter animation
+        duration: 0.3,
+      }}
+      className="inline-block"
+    >
+      {char === " " ? "\u00A0" : char}
+    </motion.span>
+  ))}
+</motion.h1>
+
+              {/* SUBTITLE */}
+             <motion.p
+  className="text-xl md:text-2xl mb-8 font-light flex flex-wrap justify-center"
+>
+  {splitLetters(subtitle).map((char, index) => (
+    <motion.span
+      key={index}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{
+        delay: 1.5 + index * 0.04, // starts after title
+        duration: 0.3,
+      }}
+      className="inline-block"
+    >
+      {char === " " ? "\u00A0" : char}
+    </motion.span>
+  ))}
+</motion.p>
+
+              {/* BUTTONS */}
+<motion.div
+  className="flex flex-col sm:flex-row gap-4 justify-center"
+>
+  <motion.div
+    initial={{ opacity: 0, y: 50 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 2.5, duration: 0.6 }}
+  >
+    <Link to="/register" className="border-2 border-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-[#FFF8F0] hover:text-[#4B2E2B] transition-all duration-300 transform hover:scale-105 font-semibold">
+      Get Started
+    </Link>
+  </motion.div>
+
+  <motion.div
+    initial={{ opacity: 0, y: 50 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 2.8, duration: 0.6 }}
+  >
+    <Link to="/login" className="border-2 border-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-[#FFF8F0] hover:text-[#4B2E2B] transition-all duration-300 transform hover:scale-105 font-semibold">
+      Sign In
+    </Link>
+  </motion.div>
+</motion.div>
+
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
     {/* Welcome Messages Section */}
-    <section className="py-16 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-6">
-            Your Home Away From Home
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#FFF8F0] p-8 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 transform">
-              <div className="text-4xl mb-4 hover:animate-bounce">🏠</div>
-              <h3 className="text-xl font-semibold text-[#4B2E2B] mb-3">
-                Feel Like Home
-              </h3>
-              <p className="text-gray-600">
-                Experience the comfort and warmth of a true home. Our spaces are designed to make you feel relaxed and cherished.
-              </p>
-            </div>
-            
-            <div className="bg-[#FFF8F0] p-8 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 transform">
-              <div className="text-4xl mb-4 hover:rotate-12 transition-transform duration-300">🛡️</div>
-              <h3 className="text-xl font-semibold text-[#4B2E2B] mb-3">
-                Secure & Safe
-              </h3>
-              <p className="text-gray-600">
-                Your safety is our priority. With 24/7 security and modern amenities, enjoy peace of mind throughout your stay.
-              </p>
-            </div>
-            
-            <div className="bg-[#FFF8F0] p-8 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 transform">
-              <div className="text-4xl mb-4 hover:animate-pulse">⭐</div>
-              <h3 className="text-xl font-semibold text-[#4B2E2B] mb-3">
-                Comfortable Stay
-              </h3>
-              <p className="text-gray-600">
-                Premium facilities and thoughtful services ensure your stay is nothing short of exceptional and comfortable.
-              </p>
-            </div>
+   <section className="py-16 px-4">
+  <div className="max-w-6xl mx-auto">
+    <div className="text-center mb-12">
+      <motion.h2
+  className="text-4xl font-bold mb-10 flex flex-wrap justify-center"
+  initial="hidden"
+  whileInView="visible"
+  viewport={{ once: false, amount: 0.5 }} // 👈 important
+>
+  {splitLetters("Your Home Away From Home").map((char, index) => (
+    <motion.span
+      key={index}
+      variants={{
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0 }
+      }}
+      transition={{
+        delay: index * 0.05,
+        duration: 0.3,
+      }}
+      className="whitespace-pre"
+    >
+      {char}
+    </motion.span>
+  ))}
+</motion.h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {/* CARD 1 */}
+        <div className="card-uiverse shadow-lg hover:scale-105 transition-transform duration-300">
+          <div className="card-content flex flex-col items-center justify-center h-full">
+            <h3 className="card-title text-xl font-semibold text-[#4B2E2B] text-center">
+              Feel Like Home
+            </h3>
+            <p className="card-hover-text text-gray-700 text-center mt-2">
+              Experience the comfort and warmth of a true home. Our spaces are designed to make you feel relaxed and cherished.
+            </p>
           </div>
         </div>
+
+        {/* CARD 2 */}
+        <div className="card-uiverse shadow-lg">
+          <div className="card-content flex flex-col items-center justify-center h-full">
+            <h3 className="card-title text-xl font-semibold text-[#4B2E2B] text-center">
+              Secure & Safe
+            </h3>
+            <p className="card-hover-text text-gray-700 text-center mt-2">
+              Your safety is our priority. With 24/7 security and modern amenities, enjoy peace of mind throughout your stay.
+            </p>
+          </div>
+        </div>
+
+        {/* CARD 3 */}
+        <div className="card-uiverse shadow-lg">
+          <div className="card-content flex flex-col items-center justify-center h-full">
+            <h3 className="card-title text-xl font-semibold text-[#4B2E2B] text-center">
+              Comfortable Stay
+            </h3>
+            <p className="card-hover-text text-gray-700 text-center mt-2">
+              Premium facilities and thoughtful services ensure your stay is nothing short of exceptional and comfortable.
+            </p>
+          </div>
+        </div>
+
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
     {/* Features Section */}
     {/* <section className="py-16 bg-gray-50"> */}
@@ -165,49 +214,154 @@ return(
     {/* Thank You Section */}
     {/* <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white"> */}
     <section className="py-16 bg-[#4B2E2B]">
-      <div className="max-w-4xl mx-auto text-center px-4">
-        <h2 className="text-3xl font-bold mb-6">
-          Thank You for Choosing StayMate
-        </h2>
-        <p className="text-xl mb-8">
-          We're honored to be part of your journey. Our commitment to excellence ensures that every moment with us is memorable.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
-            to="/register" 
-            className="border-2 border-[#FFF8F0] text-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-[#FFF8F0] hover:text-[#4B2E2B] transition-colors font-semibold"
+  <div className="max-w-4xl mx-auto text-center px-4">
+
+    {/* HEADING */}
+    <motion.h2
+      className="text-3xl font-bold mb-6 flex flex-wrap justify-center"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false, amount: 0.6 }}
+    >
+      {"Thank You for Choosing StayMate".split("").map((char, index) => (
+        <motion.span
+          key={index}
+          variants={{
+            hidden: { opacity: 0, y: 30, filter: "blur(8px)" },
+            visible: { opacity: 1, y: 0, filter: "blur(0px)" }
+          }}
+          transition={{
+            delay: index * 0.04,
+            duration: 0.4,
+          }}
+          className="inline-block"
+        >
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
+    </motion.h2>
+
+    {/* PARAGRAPH */}
+    <motion.p
+      className="text-xl mb-8 flex flex-wrap justify-center"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false, amount: 0.6 }}
+    >
+      {"We're honored to be part of your journey. Our commitment to excellence ensures that every moment with us is memorable."
+        .split("")
+        .map((char, index) => (
+          <motion.span
+            key={index}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            transition={{
+              delay: 1 + index * 0.02, // starts after heading
+              duration: 0.3,
+            }}
+            className="inline-block"
           >
-            Join Our Community
-          </Link>
-          <Link 
-            to="/login" 
-            className="border-2 border-[#FFF8F0] text-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-[#FFF8F0] hover:text-[#4B2E2B] transition-colors font-semibold"
-          >
-            Access Your Account
-          </Link>
-        </div>
-      </div>
-    </section>
+            {char === " " ? "\u00A0" : char}
+          </motion.span>
+        ))}
+    </motion.p>
+
+    {/* BUTTONS */}
+    <motion.div
+      className="flex flex-col sm:flex-row gap-4 justify-center"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false }}
+    >
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 50 },
+          visible: { opacity: 1, y: 0 }
+        }}
+        transition={{ delay: 2.2, duration: 0.5 }}
+      >
+        <Link 
+          to="/register" 
+          className="border-2 border-[#FFF8F0] text-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-[#FFF8F0] hover:text-[#4B2E2B] transition-all duration-300 transform hover:scale-105 font-semibold"
+        >
+          Join Our Community
+        </Link>
+      </motion.div>
+
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 50 },
+          visible: { opacity: 1, y: 0 }
+        }}
+        transition={{ delay: 2.4, duration: 0.5 }}
+      >
+        <Link 
+          to="/login" 
+          className="border-2 border-[#FFF8F0] text-[#FFF8F0] px-8 py-3 rounded-lg hover:bg-[#FFF8F0] hover:text-[#4B2E2B] transition-all duration-300 transform hover:scale-105 font-semibold"
+        >
+          Access Your Account
+        </Link>
+      </motion.div>
+    </motion.div>
+
+  </div>
+</section>
 
     <div className="FFF8F0 ml-12 mr-12"><hr /></div>
     
 
     {/* Footer */}
     <footer className="py-8 bg-[#4B2E2B]">
-      <div className="max-w-6xl mx-auto px-4 text-center py-4">
-        <div className="mb-4">
-          <h3 className="text-2xl font-bold">
-            StayMate Management
-          </h3>
-        </div>
-        <p className="mb-4">
-          &copy; 2026 StayMate Management. All rights reserved.
-        </p>
-        <p className="text-sm ">
-          Your trusted partner in comfortable and secure living. 
-        </p>
-      </div>
-    </footer>
+  <div className="max-w-6xl mx-auto px-4 text-center py-4">
+
+    {/* TYPEWRITER HEADING */}
+    <motion.h3
+      className="text-2xl font-bold mb-4 flex justify-center"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false, amount: 0.6 }} // 👈 triggers on scroll
+    >
+      {"StayMate Management".split("").map((char, index) => (
+        <motion.span
+          key={index}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1 }
+          }}
+          transition={{
+            delay: index * 0.06, // typing speed
+          }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
+    </motion.h3>
+
+    {/* TEXT */}
+    <motion.p
+      className="mb-4"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false }}
+      transition={{ delay: 1.5 }}
+    >
+      &copy; 2026 StayMate Management. All rights reserved.
+    </motion.p>
+
+    <motion.p
+      className="text-sm"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false }}
+      transition={{ delay: 1.8 }}
+    >
+      Your trusted partner in comfortable and secure living.
+    </motion.p>
+
+  </div>
+</footer>
   </div>
 );
 }
