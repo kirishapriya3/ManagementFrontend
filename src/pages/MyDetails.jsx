@@ -30,7 +30,7 @@ export default function MyDetails(){
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "http://localhost:5000/api/users/me",
+        "https://managementbackend-0njb.onrender.com/api/users/me",
         {
           headers:{ Authorization:`Bearer ${token}` }
         }
@@ -52,7 +52,7 @@ export default function MyDetails(){
       const token = localStorage.getItem("token");
 
       const res = await axios.put(
-        "http://localhost:5000/api/users/update",
+        "https://managementbackend-0njb.onrender.com/api/users/update",
         form,
         {
           headers:{ Authorization:`Bearer ${token}` }

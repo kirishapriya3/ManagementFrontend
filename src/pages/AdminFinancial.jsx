@@ -29,7 +29,7 @@ export default function AdminFinancial() {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:5000/api/billing/financial-overview?period=${selectedPeriod}&year=${selectedYear}&month=${selectedMonth}`,
+        `https://managementbackend-0njb.onrender.com/api/billing/financial-overview?period=${selectedPeriod}&year=${selectedYear}&month=${selectedMonth}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }

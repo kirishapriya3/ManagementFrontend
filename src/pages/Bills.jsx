@@ -16,7 +16,7 @@ const fetchBills = async()=>{
   const token = localStorage.getItem("token");
 
   const res = await axios.get(
-    "http://localhost:5000/api/billing/my-bills",
+    "https://managementbackend-0njb.onrender.com/api/billing/my-bills",
     {
       headers:{
         Authorization:`Bearer ${token}`
@@ -41,7 +41,7 @@ const handlePay = async (billId) => {
 
   // STEP 1: create payment intent
   const res = await axios.post(
-    "http://localhost:5000/api/payment/create-intent",
+    "https://managementbackend-0njb.onrender.com/api/payment/create-intent",
     { billId: billId.trim() },
     {
       headers:{

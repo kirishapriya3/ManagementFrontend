@@ -32,7 +32,7 @@ export default function PaymentSuccess() {
             }
             
             const res = await axios.get(
-                `http://localhost:5000/api/payment/success?session_id=${sessionId}`,
+                `https://managementbackend-0njb.onrender.com/api/payment/success?session_id=${sessionId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -54,7 +54,7 @@ export default function PaymentSuccess() {
         try {
             const token = localStorage.getItem("token");
             const response = await axios.get(
-                `http://localhost:5000/api/invoices/${invoiceId}/download`,
+                `https://managementbackend-0njb.onrender.com/api/invoices/${invoiceId}/download`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                     responseType: 'blob'

@@ -32,7 +32,7 @@ function CheckoutForm({ billId, clientSecret }) {
                 const token = localStorage.getItem("token");
 
                 await axios.post(
-                    "http://localhost:5000/api/payment/confirm",
+                    "https://managementbackend-0njb.onrender.com/api/payment/confirm",
                     {
                         paymentIntentId: result.paymentIntent.id,
                         billId
@@ -92,7 +92,7 @@ export default function Payment() {
         try {
             const token = localStorage.getItem("token");
             const res = await axios.get(
-                "http://localhost:5000/api/billing/my-bills",
+                "https://managementbackend-0njb.onrender.com/api/billing/my-bills",
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -109,7 +109,7 @@ export default function Payment() {
         try {
             const token = localStorage.getItem("token");
             const res = await axios.get(
-                "http://localhost:5000/api/billing/current",
+                "https://managementbackend-0njb.onrender.com/api/billing/current",
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -124,7 +124,7 @@ export default function Payment() {
         try {
             const token = localStorage.getItem("token");
             const res = await axios.get(
-                "http://localhost:5000/api/billing/payment-history",
+                "https://managementbackend-0njb.onrender.com/api/billing/payment-history",
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -142,7 +142,7 @@ export default function Payment() {
             console.log('Fetching invoices with token:', !!token);
             
             const res = await axios.get(
-                "http://localhost:5000/api/invoices",
+                "https://managementbackend-0njb.onrender.com/api/invoices",
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -180,7 +180,7 @@ export default function Payment() {
             console.log('Token found:', !!token);
             
             const response = await axios.get(
-                `http://localhost:5000/api/invoices/${invoiceId}/download`,
+                `https://managementbackend-0njb.onrender.com/api/invoices/${invoiceId}/download`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                     responseType: 'blob'
@@ -227,7 +227,7 @@ export default function Payment() {
             console.log('Token found:', !!token);
             
             const res = await axios.get(
-                `http://localhost:5000/api/payment/success?session_id=${sessionId}`,
+                `https://managementbackend-0njb.onrender.com/api/payment/success?session_id=${sessionId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -264,7 +264,7 @@ export default function Payment() {
         try {
             const token = localStorage.getItem("token");
             const res = await axios.post(
-                "http://localhost:5000/api/payment/create-checkout-session",
+                "https://managementbackend-0njb.onrender.com/api/payment/create-checkout-session",
                 { billId },
                 {
                     headers: { Authorization: `Bearer ${token}` }

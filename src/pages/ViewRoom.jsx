@@ -24,7 +24,7 @@ useEffect(() => {
 const fetchRoomsForFloor = async (floor) => {
   try {
     setRoomsLoading(true);
-    const response = await fetch(`http://localhost:5000/api/rooms/floor/${floor}`, {
+    const response = await fetch(`https://managementbackend-0njb.onrender.com/api/rooms/floor/${floor}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -50,7 +50,7 @@ const getFloorName = (floor) => {
 const fetchAvailableResidents = async () => {
   try {
     setLoading(true);
-    const response = await fetch('http://localhost:5000/api/residents/available', {
+    const response = await fetch('https://managementbackend-0njb.onrender.com/api/residents/available', {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -91,7 +91,7 @@ const handleRoomClick = (room) => {
 
 const handleResidentSelect = async (residentId) => {
   try {
-    const response = await fetch('http://localhost:5000/api/residents/assign', {
+    const response = await fetch('https://managementbackend-0njb.onrender.com/api/residents/assign', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const handleUnassignResident = async (residentId, residentName) => {
   
   try {
     console.log('Calling unassign API...');
-    const response = await fetch('http://localhost:5000/api/residents/unassign', {
+    const response = await fetch('https://managementbackend-0njb.onrender.com/api/residents/unassign', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

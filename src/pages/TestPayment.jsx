@@ -11,7 +11,7 @@ export default function TestPayment() {
             // Create a test checkout session
             const token = localStorage.getItem("token");
             const res = await axios.post(
-                "http://localhost:5000/api/payment/test-checkout-session",
+                "https://managementbackend-0njb.onrender.com/api/payment/test-checkout-session",
                 {}, // Empty body - no bill required
                 {
                     headers: { Authorization: `Bearer ${token}` }

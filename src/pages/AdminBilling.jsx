@@ -33,7 +33,7 @@ export default function AdminBilling() {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        "http://localhost:5000/api/billing/overview",
+        "https://managementbackend-0njb.onrender.com/api/billing/overview",
         {
           headers: { Authorization: `Bearer ${token}` }
         }

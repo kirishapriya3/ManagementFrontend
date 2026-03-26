@@ -28,7 +28,7 @@ const fetchAllRequests = async ()=>{
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-            "http://localhost:5000/api/maintenance/",
+            "https://managementbackend-0njb.onrender.com/api/maintenance/",
             {
                 headers:{ Authorization:`Bearer ${token}` }
             }
@@ -53,7 +53,7 @@ const handleSubmit = async (e)=>{
     const token = localStorage.getItem("token");
 
     await axios.post(
-      "http://localhost:5000/api/maintenance/create",
+      "https://managementbackend-0njb.onrender.com/api/maintenance/create",
       form,
       {
         headers:{ Authorization:`Bearer ${token}` }
@@ -85,7 +85,7 @@ const updateStatus = async (requestId, newStatus) => {
         const request = requests.find(req => req._id === requestId);
         
         await axios.put(
-            `http://localhost:5000/api/maintenance/${requestId}`,
+            `https://managementbackend-0njb.onrender.com/api/maintenance/${requestId}`,
             { status: newStatus },
             {
                 headers: { Authorization: `Bearer ${token}` }
@@ -96,7 +96,7 @@ const updateStatus = async (requestId, newStatus) => {
         if (newStatus === 'completed' && request?.residentId?.email) {
             try {
                 const response = await axios.post(
-                    "http://localhost:5000/api/maintenance/send-email",
+                    "https://managementbackend-0njb.onrender.com/api/maintenance/send-email",
                     {
                         to: request.residentId.email,
                         subject: "Maintenance Request Completed ",

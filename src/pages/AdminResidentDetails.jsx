@@ -35,7 +35,7 @@ export default function AdminResidentDetails() {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        "http://localhost:5000/api/residents",
+        "https://managementbackend-0njb.onrender.com/api/residents",
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -53,7 +53,7 @@ export default function AdminResidentDetails() {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:5000/api/residents/${residentId}`,
+        `https://managementbackend-0njb.onrender.com/api/residents/${residentId}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
