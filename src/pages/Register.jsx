@@ -2,22 +2,22 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
-export default function Register(){
+export default function Register() {
 
   const navigate = useNavigate();
 
-  const [form,setForm] = useState({
-    name:"",
-    email:"",
-    password:"",
-    role:"",
-    phone:""
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "",
+    phone: ""
   });
 
-  const handleChange = (e)=>{
+  const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]:e.target.value
+      [e.target.name]: e.target.value
     });
   };
 
@@ -25,11 +25,11 @@ export default function Register(){
     navigate("/");
   };
 
-  const handleSubmit = async(e)=>{
+  const handleSubmit = async (e) => {
 
     e.preventDefault();
 
-    try{
+    try {
 
       await axios.post(
         "https://managementbackend-0njb.onrender.com/api/auth/register",
@@ -40,7 +40,7 @@ export default function Register(){
 
       navigate("/login");
 
-    }catch(error){
+    } catch (error) {
 
       console.log(error.response?.data);
 
@@ -50,7 +50,7 @@ export default function Register(){
 
   };
 
-  return(
+  return (
     <div className="flex justify-center items-center h-screen relative bg-[#4B2E2B] mt-10">
       {/* Back Button */}
       <button

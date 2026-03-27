@@ -83,7 +83,7 @@ export default function AdminCharts() {
                 strokeWidth="1"
               />
             ))}
-            
+
             {/* Y-axis labels */}
             {[...Array(6)].map((_, i) => (
               <text
@@ -96,7 +96,7 @@ export default function AdminCharts() {
                 {50000 - i * 10000}
               </text>
             ))}
-            
+
             {/* X-axis labels */}
             {revenueData.map((item, i) => (
               <text
@@ -109,37 +109,37 @@ export default function AdminCharts() {
                 {item.period}
               </text>
             ))}
-            
+
             {/* Revenue line */}
             <polyline
               fill="none"
               stroke="#10b981"
               strokeWidth="3"
-              points={revenueData.map((item, i) => 
+              points={revenueData.map((item, i) =>
                 `${100 + i * 100},${250 - (item.revenue / 50000) * 200}`
               ).join(' ')}
             />
-            
+
             {/* Expenses line */}
             <polyline
               fill="none"
               stroke="#ef4444"
               strokeWidth="3"
-              points={revenueData.map((item, i) => 
+              points={revenueData.map((item, i) =>
                 `${100 + i * 100},${250 - (item.expenses / 50000) * 200}`
               ).join(' ')}
             />
-            
+
             {/* Profit line */}
             <polyline
               fill="none"
               stroke="#3b82f6"
               strokeWidth="3"
-              points={revenueData.map((item, i) => 
+              points={revenueData.map((item, i) =>
                 `${100 + i * 100},${250 - (item.profit / 50000) * 200}`
               ).join(' ')}
             />
-            
+
             {/* Data points */}
             {revenueData.map((item, i) => (
               <g key={`points-${i}`}>
@@ -163,15 +163,15 @@ export default function AdminCharts() {
                 />
               </g>
             ))}
-            
+
             {/* Legend */}
             <g>
               <rect x="650" y="60" width="15" height="3" fill="#10b981" />
               <text x="670" y="65" className="text-xs fill-gray-700">Revenue</text>
-              
+
               <rect x="650" y="80" width="15" height="3" fill="#ef4444" />
               <text x="670" y="85" className="text-xs fill-gray-700">Expenses</text>
-              
+
               <rect x="650" y="100" width="15" height="3" fill="#3b82f6" />
               <text x="670" y="105" className="text-xs fill-gray-700">Profit</text>
             </g>
@@ -207,7 +207,7 @@ export default function AdminCharts() {
                 strokeWidth="1"
               />
             ))}
-            
+
             {/* Y-axis labels */}
             {[...Array(5)].map((_, i) => (
               <text
@@ -220,7 +220,7 @@ export default function AdminCharts() {
                 {100 - i * 25}%
               </text>
             ))}
-            
+
             {/* X-axis labels */}
             {occupancyData.map((item, i) => (
               <text
@@ -233,7 +233,7 @@ export default function AdminCharts() {
                 {item.period}
               </text>
             ))}
-            
+
             {/* Occupancy bars */}
             {occupancyData.map((item, i) => (
               <rect
@@ -246,7 +246,7 @@ export default function AdminCharts() {
                 opacity="0.8"
               />
             ))}
-            
+
             {/* Occupancy values on top of bars */}
             {occupancyData.map((item, i) => (
               <text
@@ -291,7 +291,7 @@ export default function AdminCharts() {
                 strokeWidth="1"
               />
             ))}
-            
+
             {/* Y-axis labels */}
             {[...Array(5)].map((_, i) => (
               <text
@@ -304,7 +304,7 @@ export default function AdminCharts() {
                 {50 - i * 12.5}%
               </text>
             ))}
-            
+
             {/* X-axis labels */}
             {profitMarginData.map((item, i) => (
               <text
@@ -317,17 +317,17 @@ export default function AdminCharts() {
                 {item.period}
               </text>
             ))}
-            
+
             {/* Profit margin line */}
             <polyline
               fill="none"
               stroke="#f59e0b"
               strokeWidth="3"
-              points={profitMarginData.map((item, i) => 
+              points={profitMarginData.map((item, i) =>
                 `${100 + i * 100},${165 - (item.profitMargin / 50) * 135}`
               ).join(' ')}
             />
-            
+
             {/* Data points */}
             {profitMarginData.map((item, i) => (
               <circle
@@ -338,7 +338,7 @@ export default function AdminCharts() {
                 fill="#f59e0b"
               />
             ))}
-            
+
             {/* Values on points */}
             {profitMarginData.map((item, i) => (
               <text
@@ -362,19 +362,19 @@ export default function AdminCharts() {
           <p className="text-2xl font-bold mt-2">₹{chartData.revenue?.total?.toLocaleString() || 0}</p>
           <p className="text-xs mt-2 opacity-80">+12.5% from last year</p>
         </div>
-        
+
         <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-lg">
           <h4 className="text-sm font-medium opacity-90">Total Expenses</h4>
           <p className="text-2xl font-bold mt-2">₹{chartData.expenses?.total?.toLocaleString() || 0}</p>
           <p className="text-xs mt-2 opacity-80">+8.2% from last year</p>
         </div>
-        
+
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
           <h4 className="text-sm font-medium opacity-90">Net Profit</h4>
           <p className="text-2xl font-bold mt-2">₹{chartData.profit?.net?.toLocaleString() || 0}</p>
           <p className="text-xs mt-2 opacity-80">+15.3% from last year</p>
         </div>
-        
+
         <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg">
           <h4 className="text-sm font-medium opacity-90">Occupancy Rate</h4>
           <p className="text-2xl font-bold mt-2">{chartData.occupancy?.rate || 0}%</p>

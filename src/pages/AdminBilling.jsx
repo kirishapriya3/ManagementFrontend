@@ -52,7 +52,7 @@ export default function AdminBilling() {
       alert(`${resident.name} has already paid their bills. No reminder needed.`);
       return;
     }
-    
+
     try {
       await sendBillingReminder({
         userId: resident.residentId,
@@ -153,11 +153,10 @@ export default function AdminBilling() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{resident.roomNumber}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            resident.totalDue === 0 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resident.totalDue === 0
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                            }`}>
                             {resident.totalDue === 0 ? 'Paid' : 'Unpaid'}
                           </span>
                         </td>
@@ -211,7 +210,7 @@ export default function AdminBilling() {
                 ×
               </button>
             </div>
-            
+
             <div className="space-y-6">
               {/* Resident Information */}
               <div className="bg-gray-50 p-4 rounded-lg">
@@ -263,11 +262,10 @@ export default function AdminBilling() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <div className="bg-white p-2 rounded text-center">
-                      <span className={`px-3 py-1 inline-flex text-sm font-semibold rounded-full ${
-                        selectedResident.totalDue === 0 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`px-3 py-1 inline-flex text-sm font-semibold rounded-full ${selectedResident.totalDue === 0
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                        }`}>
                         {selectedResident.totalDue === 0 ? 'Paid' : 'Unpaid'}
                       </span>
                     </div>

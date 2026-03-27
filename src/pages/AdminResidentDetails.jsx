@@ -107,47 +107,47 @@ export default function AdminResidentDetails() {
         // Resident Details View
         <div className="bg-white rounded-lg shadow-md border p-6">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">Resident Details</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Personal Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Personal Information</h3>
-              
+
               <div className="space-y-3">
                 <div>
                   <span className="font-medium text-gray-600">Name:</span>
                   <span className="ml-2 text-gray-900">{selectedResident.name}</span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Email:</span>
                   <span className="ml-2 text-gray-900">{selectedResident.email}</span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Phone:</span>
                   <span className="ml-2 text-gray-900">{selectedResident.phone}</span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Aadhaar Number:</span>
                   <span className="ml-2 text-gray-900">{selectedResident.aadhaar || 'N/A'}</span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Date of Birth:</span>
                   <span className="ml-2 text-gray-900">
                     {selectedResident.dateOfBirth ? new Date(selectedResident.dateOfBirth).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Gender:</span>
                   <span className="ml-2 text-gray-900">
                     {selectedResident.gender ? selectedResident.gender.charAt(0).toUpperCase() + selectedResident.gender.slice(1) : 'N/A'}
                   </span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Emergency Contact:</span>
                   <span className="ml-2 text-gray-900">{selectedResident.emergencyContact || 'N/A'}</span>
@@ -158,27 +158,27 @@ export default function AdminResidentDetails() {
             {/* Room Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Room Information</h3>
-              
+
               <div className="space-y-3">
                 <div>
                   <span className="font-medium text-gray-600">Room Number:</span>
                   <span className="ml-2 text-gray-900">{selectedResident.roomId?.roomNumber || 'N/A'}</span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Room Capacity:</span>
                   <span className="ml-2 text-gray-900">
                     {selectedResident.roomId?.capacity ? `${selectedResident.roomId.capacity} persons` : 'N/A'}
                   </span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Check-in Date:</span>
                   <span className="ml-2 text-gray-900">
                     {selectedResident.checkInDate ? new Date(selectedResident.checkInDate).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
-                
+
                 <div>
                   <span className="font-medium text-gray-600">Check-out Date:</span>
                   <span className="ml-2 text-gray-900">
@@ -256,14 +256,14 @@ export default function AdminResidentDetails() {
             >
               View Billing
             </button>
-            
+
             <button
               onClick={() => navigate(`/maintenance?resident=${selectedResident._id}`)}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               View Maintenance
             </button>
-            
+
             <button
               onClick={() => window.print()}
               className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
@@ -277,7 +277,7 @@ export default function AdminResidentDetails() {
         <div className="bg-white rounded-lg shadow-md border p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-800">All Residents</h2>
-            
+
             <div className="flex gap-4">
               <input
                 type="text"
@@ -286,7 +286,7 @@ export default function AdminResidentDetails() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              
+
               <button
                 onClick={fetchResidents}
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -324,11 +324,10 @@ export default function AdminResidentDetails() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          resident.status === 'active' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resident.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                          }`}>
                           {resident.status || 'Active'}
                         </span>
                       </td>

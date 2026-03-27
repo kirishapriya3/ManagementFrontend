@@ -11,7 +11,7 @@ export default function PaymentSuccess() {
 
     useEffect(() => {
         const sessionId = searchParams.get('session_id');
-        
+
         if (!sessionId) {
             setError('No session ID found');
             setLoading(false);
@@ -24,13 +24,13 @@ export default function PaymentSuccess() {
     const handlePaymentSuccess = async (sessionId) => {
         try {
             const token = localStorage.getItem("token");
-            
+
             if (!token) {
                 setError('Please log in to view payment details');
                 setLoading(false);
                 return;
             }
-            
+
             const res = await axios.get(
                 `https://managementbackend-0njb.onrender.com/api/payment/success?session_id=${sessionId}`,
                 {

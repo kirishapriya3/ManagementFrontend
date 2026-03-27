@@ -71,7 +71,7 @@ export default function AdminFinancial() {
             <option value="month">Monthly</option>
             <option value="year">Yearly</option>
           </select>
-          
+
           {selectedPeriod === 'month' && (
             <>
               <select
@@ -94,7 +94,7 @@ export default function AdminFinancial() {
               </select>
             </>
           )}
-          
+
           {selectedPeriod === 'year' && (
             <select
               value={selectedYear}
@@ -126,7 +126,7 @@ export default function AdminFinancial() {
             {financialData.revenue?.growth > 0 ? '+' : ''}{financialData.revenue?.growth || 0}% from last period
           </p>
         </div>
-        
+
         <div className="bg-white p-6 rounded-lg shadow-md border">
           <h3 className="text-lg font-semibold text-gray-800">Total Expenses</h3>
           <p className="text-3xl font-bold text-red-600">₹{financialData.expenses?.total?.toLocaleString() || 0}</p>
@@ -134,7 +134,7 @@ export default function AdminFinancial() {
             {financialData.expenses?.growth > 0 ? '+' : ''}{financialData.expenses?.growth || 0}% from last period
           </p>
         </div>
-        
+
         <div className="bg-white p-6 rounded-lg shadow-md border">
           <h3 className="text-lg font-semibold text-gray-800">Net Profit</h3>
           <p className="text-3xl font-bold text-blue-600">₹{financialData.profit?.net?.toLocaleString() || 0}</p>
@@ -142,7 +142,7 @@ export default function AdminFinancial() {
             {financialData.profit?.growth > 0 ? '+' : ''}{financialData.profit?.growth || 0}% from last period
           </p>
         </div>
-        
+
         <div className="bg-white p-6 rounded-lg shadow-md border">
           <h3 className="text-lg font-semibold text-gray-800">Occupancy Rate</h3>
           <p className="text-3xl font-bold text-purple-600">{financialData.occupancy?.rate || 0}%</p>

@@ -140,17 +140,17 @@ export default function Payment() {
         try {
             const token = localStorage.getItem("token");
             console.log('Fetching invoices with token:', !!token);
-            
+
             const res = await axios.get(
                 "https://managementbackend-0njb.onrender.com/api/invoices",
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
             );
-            
+
             console.log('Invoices response:', res.data);
             console.log('Invoices count:', res.data.length);
-            
+
             // Log each invoice for debugging
             if (res.data.length > 0) {
                 res.data.forEach((invoice, index) => {
@@ -163,7 +163,7 @@ export default function Payment() {
                     });
                 });
             }
-            
+
             setInvoices(res.data);
         } catch (error) {
             console.error('Error fetching invoices:', error);
@@ -178,7 +178,7 @@ export default function Payment() {
         try {
             const token = localStorage.getItem("token");
             console.log('Token found:', !!token);
-            
+
             const response = await axios.get(
                 `https://managementbackend-0njb.onrender.com/api/invoices/${invoiceId}/download`,
                 {
@@ -207,14 +207,14 @@ export default function Payment() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');
-        
+
         console.log('Checking URL params:', { sessionId, urlParams: window.location.search });
-        
+
         if (sessionId) {
             console.log('Found session_id, calling payment success handler...');
             // Call payment success endpoint to create invoice
             handlePaymentSuccess(sessionId);
-            
+
             // Clear the URL parameter
             window.history.replaceState({}, document.title, window.location.pathname);
         }
@@ -225,7 +225,7 @@ export default function Payment() {
         try {
             const token = localStorage.getItem("token");
             console.log('Token found:', !!token);
-            
+
             const res = await axios.get(
                 `https://managementbackend-0njb.onrender.com/api/payment/success?session_id=${sessionId}`,
                 {
@@ -415,22 +415,22 @@ export default function Payment() {
                         {/* Charges Breakdown */}
                         <div className="space-y-3 mb-6">
                             <h3 className="text-lg font-semibold text-gray-800 mb-3">Charges Breakdown</h3>
-                            
+
                             <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-gray-600">Hostel Fees</span>
                                 <span className="font-medium">₹{currentBill.charges?.hostelFees || 8000}</span>
                             </div>
-                            
+
                             <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-gray-600">Mess Fees</span>
                                 <span className="font-medium">₹{currentBill.charges?.messFees || 8000}</span>
                             </div>
-                            
+
                             <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-gray-600">Utilities</span>
                                 <span className="font-medium">₹{currentBill.charges?.utilities || 500}</span>
                             </div>
-                            
+
                             <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-gray-600">Additional Fees</span>
                                 <span className="font-medium">₹{currentBill.charges?.additionalFees || 1000}</span>

@@ -8,7 +8,7 @@ import AdminCharts from "../components/AdminCharts";
 
 export default function AdminDashboard() {
 
-  const [userId,setUserId] = useState("");
+  const [userId, setUserId] = useState("");
   const [billingOverview, setBillingOverview] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -68,11 +68,11 @@ export default function AdminDashboard() {
       </h1>
 
       <button
-          className="bg-blue-500 text-white px-4 py-2"
-          onClick={handleBilling}
-        >
-          Send Billing Reminder
-        </button>
+        className="bg-blue-500 text-white px-4 py-2"
+        onClick={handleBilling}
+      >
+        Send Billing Reminder
+      </button>
 
       {/* <input
         type="text"
@@ -209,11 +209,10 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600">₹{resident.totalPaid.toLocaleString()}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">₹{resident.totalDue.toLocaleString()}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              resident.totalDue === 0 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
-                            }`}>
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resident.totalDue === 0
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                              }`}>
                               {resident.totalDue === 0 ? 'Paid' : 'Unpaid'}
                             </span>
                           </td>

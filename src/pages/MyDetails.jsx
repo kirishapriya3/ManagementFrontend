@@ -2,60 +2,60 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-export default function MyDetails(){
+export default function MyDetails() {
   const navigate = useNavigate();
 
-  const [form,setForm] = useState({
-    name:"",
-    email:"",
-    phone:"",
-    aadhaar:"",
-    emergencyContact:"",
-    dateOfBirth:"",
-    gender:""
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    aadhaar: "",
+    emergencyContact: "",
+    dateOfBirth: "",
+    gender: ""
   });
 
-  const [isEditing,setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleBack = () => {
     navigate("/resident");
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchUser();
-  },[]);
+  }, []);
 
   const fetchUser = async () => {
-    try{
+    try {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
         "https://managementbackend-0njb.onrender.com/api/users/me",
         {
-          headers:{ Authorization:`Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` }
         }
       );
 
       setForm(res.data);
 
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
   };
 
-  const handleChange = (e)=>{
-    setForm({...form,[e.target.name]:e.target.value});
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleUpdate = async () => {
-    try{
+    try {
       const token = localStorage.getItem("token");
 
       const res = await axios.put(
         "https://managementbackend-0njb.onrender.com/api/users/update",
         form,
         {
-          headers:{ Authorization:`Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` }
         }
       );
 
@@ -66,7 +66,7 @@ export default function MyDetails(){
 
       setIsEditing(false);
 
-    }catch (err) {
+    } catch (err) {
       console.log("FULL ERROR:", err);
       console.log("RESPONSE:", err.response);
       console.log("DATA:", err.response?.data);
@@ -74,7 +74,7 @@ export default function MyDetails(){
     }
   };
 
-  return(
+  return (
     <div className="p-8">
       <div className="flex items-center mb-6">
         <button
@@ -89,7 +89,7 @@ export default function MyDetails(){
       <div className="bg-white shadow p-6 rounded space-y-4">
         {/* EDIT BUTTON */}
         <button
-          onClick={()=>setIsEditing(!isEditing)}
+          onClick={() => setIsEditing(!isEditing)}
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
           {isEditing ? "Cancel" : "Edit"}

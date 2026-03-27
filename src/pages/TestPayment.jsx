@@ -40,7 +40,7 @@ export default function TestPayment() {
     return (
         <div className="p-8 max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold mb-8">Stripe Payment Test</h1>
-            
+
             <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
                 <h2 className="text-xl font-semibold mb-4">Test Card Details</h2>
                 <div className="space-y-2 mb-6">
@@ -59,9 +59,8 @@ export default function TestPayment() {
                 </button>
 
                 {result && (
-                    <div className={`mt-4 p-4 rounded-lg ${
-                        result.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <div className={`mt-4 p-4 rounded-lg ${result.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
                         {result.success ? (
                             <div>
                                 <p className="font-semibold">✅ Test Payment Created!</p>
