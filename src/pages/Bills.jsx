@@ -14,6 +14,7 @@ export default function Bills() {
     try {
 
       const token = localStorage.getItem("token");
+      console.log("Token from localStorage:", token);
 
       const res = await axios.get(
         "https://managementbackend-0njb.onrender.com/api/billing/my-bills",
@@ -24,38 +25,57 @@ export default function Bills() {
         }
       );
 
+      console.log("Bills response:", res.data);
       setBills(res.data);
 
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching bills:", error);
     }
 
   };
 
-  // 🔥 PAY FUNCTION
+  // PAY FUNCTION
   const handlePay = async (billId) => {
 
     try {
-      console.log("Sending billId:", billId);
+      console.log("Processing payment for bill:", billId);
       const token = localStorage.getItem("token");
 
-      // STEP 1: create payment intent
+      // Find the bill to get the correct amount
+      const bill = bills.find(b => b._id === billId);
+      if (!bill) {
+        alert("Bill not found");
+        return;
+      }
+
+      // Process payment with the full bill amount
       const res = await axios.post(
-        "https://managementbackend-0njb.onrender.com/api/payment/create-intent",
-        { billId: billId.trim() },
+        "https://managementbackend-0njb.onrender.com/api/billing/payment",
+        { 
+          billId: billId.trim(), 
+          amount: bill.totalAmount, // Use actual bill amount
+          paymentMethod: 'test' 
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`
           }
         }
       );
+      
       console.log(res.data);
-
-      alert("Payment initiated!");
+      
+      if (res.data.message) {
+        alert("Payment processed successfully!");
+        // Refresh the bills to show updated status
+        fetchBills();
+      } else {
+        alert("Payment failed");
+      }
 
     } catch (error) {
       console.log(error.response?.data);
-      alert("Payment failed");
+      alert("Payment failed: " + (error.response?.data?.message || error.message));
     }
 
   };

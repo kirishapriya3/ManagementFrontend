@@ -22,6 +22,7 @@ const togglePassword = () => {
 };
 
 const handleBack = () => {
+  console.log("Back button clicked");
   navigate("/");
 };
 
@@ -65,7 +66,7 @@ return(
   {/* Back Button */}
   <button
     onClick={handleBack}
-    className="absolute top-4 left-12 px-4 py-2 mt-40 rounded hover:opacity-80 transition-all flex items-center gap-2 bg-[#FFF8F0] text-[#4B2E2B]"
+    className="absolute top-4 left-4 px-4 py-2 mt-40 rounded hover:opacity-80 transition-all flex items-center gap-2 bg-[#FFF8F0] text-[#4B2E2B] z-10"
   >
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

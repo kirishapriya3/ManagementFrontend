@@ -14,7 +14,7 @@ export default function AdminCharts() {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        "https://managementbackend-0njb.onrender.com/api/billing/financial-overview?period=year",
+        "http://localhost:5000/api/billing/financial-overview?period=year",
         {
           headers: { Authorization: `Bearer ${token}` }
         }

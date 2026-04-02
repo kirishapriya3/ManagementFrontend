@@ -106,7 +106,8 @@ export default function ViewRoom() {
       if (response.ok) {
         alert('Resident assigned to room successfully!');
         setShowResidentModal(false);
-        window.location.reload(); // Refresh to show updated room status
+        // Refresh the rooms data instead of reloading the page
+        fetchRoomsForFloor(floorId);
       } else {
         alert('Error assigning resident to room');
       }
@@ -141,7 +142,8 @@ export default function ViewRoom() {
 
       if (response.ok) {
         alert('Resident unassigned successfully!');
-        window.location.reload();
+        // Refresh the rooms data instead of reloading the page
+        fetchRoomsForFloor(floorId);
       } else {
         const errorData = await response.json();
         console.log('Unassign error:', errorData);
