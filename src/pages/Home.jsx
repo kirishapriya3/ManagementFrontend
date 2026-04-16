@@ -212,7 +212,6 @@ return(
     </section> */}
 
     {/* Thank You Section */}
-    {/* <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white"> */}
     <section className="py-16 bg-[#4B2E2B]">
   <div className="max-w-4xl mx-auto text-center px-4">
 
@@ -244,28 +243,15 @@ return(
     {/* PARAGRAPH */}
     <motion.p
       className="text-xl mb-8 flex flex-wrap justify-center"
-      initial="hidden"
-      whileInView="visible"
+      initial={{ opacity: 0, y: 100 }}  // Start from bottom
+      whileInView={{ opacity: 1, y: 0 }}  // Move to top
       viewport={{ once: false, amount: 0.6 }}
+      transition={{
+        delay: 1,  // Start after heading
+        duration: 0.6,
+      }}
     >
-      {"We're honored to be part of your journey. Our commitment to excellence ensures that every moment with us is memorable."
-        .split("")
-        .map((char, index) => (
-          <motion.span
-            key={index}
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 }
-            }}
-            transition={{
-              delay: 1 + index * 0.02, // starts after heading
-              duration: 0.3,
-            }}
-            className="inline-block"
-          >
-            {char === " " ? "\u00A0" : char}
-          </motion.span>
-        ))}
+      We're honored to be part of your journey. Our commitment to excellence ensures that every moment with us is memorable.
     </motion.p>
 
     {/* BUTTONS */}

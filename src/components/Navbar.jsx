@@ -1,10 +1,15 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar(){
 
 const navigate = useNavigate();
+const location = useLocation();
 const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user") || "null");
+
+// 🔥 On home page, always show Login/Register
+const isHomePage = location.pathname === "/";
+const showLoginRegister = isHomePage || !token;
 
 // 🔥 LOGOUT FUNCTION
 const handleLogout = () => {
@@ -28,7 +33,7 @@ return(
   {/* 🔹 RIGHT */}
   <div className="flex gap-4 items-center">
 
-    {!token ? (
+    {showLoginRegister ? (
       <>
         <Link 
           to="/login" 
