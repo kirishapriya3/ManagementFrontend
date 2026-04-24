@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { sendBillingReminder } from "../services/billingService";
 
 export default function AdminBilling() {
   const [billingOverview, setBillingOverview] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedResident, setSelectedResident] = useState(null);
+  const [specificResident, setSpecificResident] = useState(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const residentId = searchParams.get('resident');
 
   // Check admin or staff role on component mount
   useEffect(() => {
@@ -32,15 +35,35 @@ export default function AdminBilling() {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://managementbackend-0njb.onrender.com/api/billing/overview",
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-      setBillingOverview(response.data);
+      
+      if (residentId) {
+        // Fetch specific resident's billing details
+        console.log('Fetching billing for resident:', residentId);
+        const response = await axios.get(
+          `https://managementbackend-0njb.onrender.com/api/billing/${residentId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        console.log('Response:', response);
+        console.log('Response data:', response.data);
+        setSpecificResident(response.data);
+      } else {
+        // Fetch all residents billing overview
+        const response = await axios.get(
+          "https://managementbackend-0njb.onrender.com/api/billing/overview",
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        setBillingOverview(response.data);
+      }
     } catch (error) {
       console.error("Error fetching billing overview:", error);
+      console.error('Error details:', error.response?.data);
+      if (residentId) {
+        alert('Error fetching resident billing details. Please check the console for details.');
+      }
     } finally {
       setLoading(false);
     }
@@ -75,18 +98,112 @@ export default function AdminBilling() {
           >
             Back
           </button>
-          <h1 className="text-3xl text-[#4B2E2B] font-bold">Admin Billing Overview</h1>
+          <h1 className="text-3xl text-[#4B2E2B] font-bold">
+            {residentId ? 'Resident Billing Details' : 'Admin Billing Overview'}
+          </h1>
         </div>
         <button
-          className="bg-blue-500 text-white px-4 py-2"
-          onClick={fetchBillingOverview}
-          disabled={loading}
+          className="bg-gray-500 text-white px-4 py-2"
+          onClick={() => navigate('/residents')}
         >
-          {loading ? 'Loading...' : 'Refresh'}
+          Back to List
         </button>
       </div>
 
-      {billingOverview.stats && billingOverview.residents ? (
+      {residentId && specificResident ? (
+        // Show specific resident billing details
+        <div className="bg-white rounded-lg shadow-md border">
+          <div className="p-6 border-b">
+            <h2 className="text-xl font-semibold text-gray-800">
+              {specificResident.resident?.name || specificResident.name} - Billing Details
+            </h2>
+          </div>
+          <div className="p-6">
+            {/* Resident Information */}
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <h3 className="text-lg font-semibold text-[#4B2E2B] mb-3">Resident Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <p className="text-gray-900 bg-white p-2 rounded">
+                    {specificResident.resident?.name || specificResident.name}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <p className="text-gray-900 bg-white p-2 rounded">
+                    {specificResident.resident?.email || specificResident.email}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Room</label>
+                  <p className="text-gray-900 bg-white p-2 rounded">
+                    {specificResident.resident?.roomNumber || specificResident.roomNumber}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bills List - Simplified View */}
+            {specificResident.bills && specificResident.bills.length > 0 && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-[#4B2E2B] mb-3">Payment Details</h3>
+                <div className="space-y-4">
+                  {specificResident.bills.map((bill) => (
+                    <div key={bill._id} className="bg-white p-4 rounded border">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="font-semibold text-gray-800">{bill.type || bill.description || 'Bill'}</h4>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-gray-900">${bill.amount}</p>
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            bill.status === 'paid'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {bill.status === 'paid' ? 'PAID' : 'UNPAID'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {bill.status === 'paid' ? (
+                          // Show paid information
+                          <>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Payment</label>
+                              <p className="text-gray-900 bg-white p-2 rounded">
+                                {bill.paidDate ? new Date(bill.paidDate).toLocaleDateString() : 'Not available'}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+                              <p className="text-gray-900 bg-white p-2 rounded font-bold">${bill.amount}</p>
+                            </div>
+                          </>
+                        ) : (
+                          // Show unpaid information
+                          <>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Due Date of Payment</label>
+                              <p className="text-gray-900 bg-white p-2 rounded">
+                                {bill.dueDate ? new Date(bill.dueDate).toLocaleDateString() : 'Not set'}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+                              <p className="text-gray-900 bg-white p-2 rounded font-bold text-red-600">${bill.amount}</p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : billingOverview.stats && billingOverview.residents ? (
         <>
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -153,11 +270,14 @@ export default function AdminBilling() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{resident.roomNumber}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resident.totalDue === 0
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            resident.roomNumber === 'N/A'
+                              ? 'bg-gray-100 text-gray-800'
+                              : resident.totalDue === 0
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
                             }`}>
-                            {resident.totalDue === 0 ? 'Paid' : 'Unpaid'}
+                            {resident.roomNumber === 'N/A' ? 'N/A' : resident.totalDue === 0 ? 'Paid' : 'Unpaid'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -264,11 +384,14 @@ export default function AdminBilling() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <div className="bg-white p-2 rounded text-center">
-                      <span className={`px-3 py-1 inline-flex text-sm font-semibold rounded-full ${selectedResident.totalDue === 0
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
+                      <span className={`px-3 py-1 inline-flex text-sm font-semibold rounded-full ${
+                        selectedResident.roomNumber === 'N/A'
+                          ? 'bg-gray-100 text-gray-800'
+                          : selectedResident.totalDue === 0
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
                         }`}>
-                        {selectedResident.totalDue === 0 ? 'Paid' : 'Unpaid'}
+                        {selectedResident.roomNumber === 'N/A' ? 'N/A' : selectedResident.totalDue === 0 ? 'Paid' : 'Unpaid'}
                       </span>
                     </div>
                   </div>

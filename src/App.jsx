@@ -1,4 +1,4 @@
-import {Routes,Route} from "react-router-dom";
+import {Routes,Route,useLocation} from "react-router-dom";
 import Layout from "./Layout";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -20,10 +20,14 @@ import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 
 function App(){
+const location = useLocation();
+
+// Show navbar on all pages
+const isAuthPage = false;
 
 return(
 <>
-    <Navbar />
+    {!isAuthPage && <Navbar />}
 
 <Routes>
 

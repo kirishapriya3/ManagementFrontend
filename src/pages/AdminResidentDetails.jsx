@@ -6,6 +6,10 @@ export default function AdminResidentDetails() {
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedResident, setSelectedResident] = useState(null);
+  const [billingData, setBillingData] = useState(null);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [maintenanceData, setMaintenanceData] = useState(null);
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
@@ -46,6 +50,69 @@ export default function AdminResidentDetails() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchBillingData = async (residentId) => {
+    try {
+      setBillingLoading(true);
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        `https://managementbackend-0njb.onrender.com/api/billing/${residentId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      console.log("Billing API response:", response.data);
+
+      setBillingData(response.data); // always expect { resident, bills }
+
+    } catch (error) {
+      console.error("Error fetching billing data:", error);
+      setBillingData(null);
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
+  const fetchMaintenanceData = async (residentId) => {
+    try {
+      setMaintenanceLoading(true);
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        `https://managementbackend-0njb.onrender.com/api/maintenance/`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      console.log("Maintenance API response:", response.data);
+      
+      // Filter maintenance requests for the specific resident
+      const residentMaintenanceRequests = response.data.filter(
+        request => request.residentId && request.residentId._id === residentId
+      );
+      
+      setMaintenanceData(residentMaintenanceRequests);
+
+    } catch (error) {
+      console.error("Error fetching maintenance data:", error);
+      setMaintenanceData(null);
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  };
+
+  const handleResidentSelect = (resident) => {
+    console.log('handleResidentSelect called with resident:', resident);
+    setSelectedResident(resident);
+    setBillingData(null); // Reset billing data
+    setMaintenanceData(null); // Reset maintenance data
+    console.log('About to fetch billing data for resident ID:', resident._id);
+    fetchBillingData(resident._id); // Fetch billing data for selected resident
+    fetchMaintenanceData(resident._id); // Fetch maintenance data for selected resident
   };
 
   const fetchResidentDetails = async (residentId) => {
@@ -246,24 +313,95 @@ export default function AdminResidentDetails() {
                 </div>
               </div>
             </div> */}
+
+            {/* Billing Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Billing Information</h3>
+              
+              {billingLoading ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">Loading billing information...</p>
+                </div>
+              ) : billingData?.bills?.length > 0 ? (
+                <div className="space-y-3">
+                  {billingData.bills.map((bill) => (
+                    <div key={bill._id} className="bg-gray-50 p-3 rounded border">
+                      
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-semibold">{bill.type || "Bill"}</h4>
+                        <span className={bill.status === "paid" ? "text-green-600" : "text-red-600"}>
+                          ₹{bill.amount} ({bill.status.toUpperCase()})
+                        </span>
+                      </div>
+
+                      {bill.status === "paid" ? (
+                        <p>Paid on: {new Date(bill.paidDate).toLocaleDateString()}</p>
+                      ) : (
+                        <p>Due on: {new Date(bill.dueDate).toLocaleDateString()}</p>
+                      )}
+
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">No billing information available</p>
+                </div>
+              )}
+            </div>
+
+            {/* Maintenance Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Maintenance Requests</h3>
+              
+              {maintenanceLoading ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">Loading maintenance information...</p>
+                </div>
+              ) : maintenanceData && maintenanceData.length > 0 ? (
+                <div className="space-y-3">
+                  {maintenanceData.map((request) => (
+                    <div key={request._id} className="bg-gray-50 p-3 rounded border">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-semibold">{request.issueTitle || 'Maintenance Request'}</h4>
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          request.status === 'completed'
+                            ? 'bg-green-100 text-green-800'
+                            : request.status === 'in-progress'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {request.status?.toUpperCase() || 'PENDING'}
+                        </span>
+                      </div>
+                      
+                      <div className="text-sm text-gray-600">
+                        <p>Category: {request.category || 'General'}</p>
+                        <p>Priority: {request.priority || 'Medium'}</p>
+                        <p>Created: {new Date(request.createdAt).toLocaleDateString()}</p>
+                        {request.resolvedAt && (
+                          <p>Resolved: {new Date(request.resolvedAt).toLocaleDateString()}</p>
+                        )}
+                      </div>
+                      
+                      {request.description && (
+                        <div className="mt-2 pt-2 border-t">
+                          <p className="text-sm">{request.description}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">No maintenance requests found</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Action Buttons */}
           <div className="mt-8 flex gap-4">
-            <button
-              onClick={() => navigate(`/billing?resident=${selectedResident._id}`)}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              View Billing
-            </button>
-
-            <button
-              onClick={() => navigate(`/maintenance?resident=${selectedResident._id}`)}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              View Maintenance
-            </button>
-
             <button
               onClick={() => window.print()}
               className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
@@ -333,7 +471,7 @@ export default function AdminResidentDetails() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
-                          onClick={() => fetchResidentDetails(resident._id)}
+                          onClick={() => handleResidentSelect(resident)}
                           className="text-blue-600 hover:text-blue-900 mr-3"
                         >
                           View Details

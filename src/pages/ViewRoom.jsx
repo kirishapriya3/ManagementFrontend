@@ -106,7 +106,7 @@ export default function ViewRoom() {
       if (response.ok) {
         alert('Resident assigned to room successfully!');
         setShowResidentModal(false);
-        // Refresh the rooms data instead of reloading the page
+        // Refresh the rooms data and residents list
         fetchRoomsForFloor(floorId);
       } else {
         alert('Error assigning resident to room');
@@ -142,7 +142,7 @@ export default function ViewRoom() {
 
       if (response.ok) {
         alert('Resident unassigned successfully!');
-        // Refresh the rooms data instead of reloading the page
+        // Refresh the rooms data and residents list
         fetchRoomsForFloor(floorId);
       } else {
         const errorData = await response.json();
@@ -256,6 +256,7 @@ export default function ViewRoom() {
           </div>
         ))}
       </div>
+
       {showResidentModal && (
         <ResidentSelectionModal
           isOpen={showResidentModal}

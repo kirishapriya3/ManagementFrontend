@@ -44,10 +44,59 @@ export default function MyDetails() {
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Fields that should allow only numbers
+    const numericFields = ["phone", "aadhaar", "emergencyContact"];
+
+    // Fields that should allow only alphabets and spaces
+    const alphaFields = ["name"];
+
+    if (numericFields.includes(name)) {
+      const numericValue = value.replace(/\D/g, "");
+
+      // Length restrictions
+      let maxLength = 10;
+      if (name === "aadhaar") maxLength = 12;
+
+      setForm((prev) => ({
+        ...prev,
+        [name]: numericValue.slice(0, maxLength),
+      }));
+    } else if (alphaFields.includes(name)) {
+      // Allow only alphabets and spaces
+      const alphaValue = value.replace(/[^a-zA-Z\s]/g, "");
+      
+      setForm((prev) => ({
+        ...prev,
+        [name]: alphaValue,
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleUpdate = async () => {
+    // Validation before update
+    if (!/^[a-zA-Z\s]+$/.test(form.name) || form.name.trim().length < 2) {
+      return alert("Name must contain only alphabets and be at least 2 characters");
+    }
+
+    if (!/^\d{10}$/.test(form.phone)) {
+      return alert("Enter valid 10-digit phone number");
+    }
+
+    if (!/^\d{12}$/.test(form.aadhaar)) {
+      return alert("Enter valid 12-digit Aadhaar number");
+    }
+
+    if (!/^\d{10}$/.test(form.emergencyContact)) {
+      return alert("Enter valid emergency contact number");
+    }
+
     try {
       const token = localStorage.getItem("token");
 
@@ -123,10 +172,13 @@ export default function MyDetails() {
             <label className="block font-semibold">Contact</label>
             <input
               name="phone"
+              type="tel"
               value={form.phone || ""}
               disabled={!isEditing}
               onChange={handleChange}
+              maxLength={10}
               className="border p-2 w-full"
+              placeholder="Enter 10-digit phone"
             />
           </div>
 
@@ -134,10 +186,13 @@ export default function MyDetails() {
             <label className="block font-semibold">Aadhaar No</label>
             <input
               name="aadhaar"
+              type="text"
               value={form.aadhaar || ""}
               disabled={!isEditing}
               onChange={handleChange}
+              maxLength={12}
               className="border p-2 w-full"
+              placeholder="Enter 12-digit Aadhaar"
             />
           </div>
 
@@ -145,10 +200,13 @@ export default function MyDetails() {
             <label className="block font-semibold">Emergency Contact</label>
             <input
               name="emergencyContact"
+              type="tel"
               value={form.emergencyContact || ""}
               disabled={!isEditing}
               onChange={handleChange}
+              maxLength={10}
               className="border p-2 w-full"
+              placeholder="Enter emergency contact"
             />
           </div>
 

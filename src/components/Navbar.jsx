@@ -7,9 +7,11 @@ const location = useLocation();
 const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user") || "null");
 
-// 🔥 On home page, always show Login/Register
+// 🔥 Show Login/Register on home page and login page
 const isHomePage = location.pathname === "/";
-const showLoginRegister = isHomePage || !token;
+const isLoginPage = location.pathname === "/login" || location.pathname === "/login/";
+const isPaymentSuccessPage = location.pathname === "/payment/success";
+const showLoginRegister = isHomePage || isLoginPage || (!token && !isPaymentSuccessPage);
 
 // 🔥 LOGOUT FUNCTION
 const handleLogout = () => {

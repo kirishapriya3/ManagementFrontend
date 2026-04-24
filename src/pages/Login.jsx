@@ -129,7 +129,7 @@ Login
 
 <p className="mt-3 text-[#4B2E2B]">
 Don't have account?
-<a href="/" className="ml-1 hover:opacity-70 transition-all text-bold text-[#4B2E2B]">Register</a>
+<a href="/register" className="ml-1 hover:opacity-70 transition-all text-bold text-[#4B2E2B]">Register</a>
 </p>
 
 </form>
