@@ -16,7 +16,7 @@ export default function ResidentDashboard() {
       {/* Welcome Section */}
       <div className="bg-[#8C5A3C]  rounded-lg p-8 mb-8 text-white">
         <h1 className="text-4xl font-bold mb-4">
-          Welcome to Staymate Hostel, {user?.name || "Resident"}! 🏠
+          Welcome to Staymate, {user?.name || "Resident"}! 🏠
         </h1>
 
         <div className="space-y-3 text-lg">

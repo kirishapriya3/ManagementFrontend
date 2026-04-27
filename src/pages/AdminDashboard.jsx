@@ -59,13 +59,25 @@ export default function AdminDashboard() {
     navigate('/billing');
   };
 
+  const handleEditProfile = () => {
+    navigate('/profile');
+  };
+
   return (
 
     <div className="p-10">
 
-      <h1 className="text-3xl text-[#4B2E2B] font-bold mb-6">
-        Hostel Admin Dashboard
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl text-[#4B2E2B] font-bold">
+          Hostel Admin Dashboard
+        </h1>
+        <button
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          onClick={handleEditProfile}
+        >
+          Edit Profile
+        </button>
+      </div>
 
       <button
         className="bg-blue-500 text-white px-4 py-2"

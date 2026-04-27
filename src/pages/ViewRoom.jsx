@@ -218,7 +218,7 @@ export default function ViewRoom() {
               {room.tenant && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tenants:</span>
-                  <span className="font-medium">{room.tenant}</span>
+                  <span className="font-medium truncate max-w-[60%]">{room.tenant}</span>
                 </div>
               )}
 
@@ -233,17 +233,19 @@ export default function ViewRoom() {
                   <p className="text-sm text-red-600 font-medium mb-3">Current Residents:</p>
                   <div className="space-y-2">
                     {room.occupants.map((occupant) => (
-                      <div key={occupant._id} className="flex justify-between items-center bg-gray-50 p-2 rounded">
-                        <div>
-                          <p className="font-medium text-gray-800">{occupant.name}</p>
-                          <p className="text-sm text-gray-600">{occupant.email}</p>
+                      <div key={occupant._id} className="bg-gray-50 p-2 rounded">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1 min-w-0 mr-2">
+                            <p className="font-medium text-gray-800 truncate">{occupant.name}</p>
+                            <p className="text-sm text-gray-600 truncate">{occupant.email}</p>
+                          </div>
                         </div>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleUnassignResident(occupant._id, occupant.name);
                           }}
-                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors w-full"
                         >
                           Unassign
                         </button>

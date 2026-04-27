@@ -1,4 +1,5 @@
 import {Routes,Route,useLocation} from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Layout from "./Layout";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -17,7 +18,28 @@ import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Notifications from "./pages/Notifications";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
+
+// 🔒 Private Route (protect pages)
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/login" />;
+};
+
+// 🚫 Public Route (block login if already logged in)
+const PublicRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  if (token && role) {
+    if (role === "admin") return <Navigate to="/admin" />;
+    if (role === "staff") return <Navigate to="/staff" />;
+    if (role === "resident") return <Navigate to="/resident" />;
+  }
+
+  return children;
+};
 
 function App(){
 const location = useLocation();
@@ -31,12 +53,31 @@ return(
 
 <Routes>
 
-<Route path="/" element={<Home/>}/>
-<Route path="/login" element={<Login/>}/>
-<Route path="/register" element={<Register/>}/>
+<Route path="/" element={
+  <PublicRoute>
+    <Home />
+  </PublicRoute>
+} />
+
+<Route path="/login" element={
+  <PublicRoute>
+    <Login />
+  </PublicRoute>
+} />
+
+<Route path="/register" element={
+  <PublicRoute>
+    <Register />
+  </PublicRoute>
+} />
+
 <Route path="/payment/success" element={<PaymentSuccess/>}/>
 
-<Route element={<Layout />}>
+<Route element={
+  <PrivateRoute>
+    <Layout />
+  </PrivateRoute>
+}>
 
 <Route path="/admin" element={<AdminDashboard/>}/>
 <Route path="/billing" element={<AdminBilling/>}/>
@@ -53,6 +94,7 @@ return(
 <Route path="/bills" element={<Bills />} />
 <Route path="/payment" element={<Payment />} />
 <Route path="/notifications" element={<Notifications />} />
+<Route path="/profile" element={<Profile />} />
 
 </Route>
 </Routes>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -25,6 +25,21 @@ const handleBack = () => {
   console.log("Back button clicked");
   navigate("/");
 };
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  if (token && role) {
+    if (role === "admin") {
+      navigate("/admin");
+    } else if (role === "resident") {
+      navigate("/resident");
+    } else if (role === "staff") {
+      navigate("/staff");
+    }
+  }
+}, [navigate]);
 
 const handleSubmit = async(e)=>{
  e.preventDefault();

@@ -14,7 +14,8 @@ export default function Maintenance() {
     });
 
     const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [statusFilter, setStatusFilter] = useState('all');
     const [userRole, setUserRole] = useState("");
     const [residentRoom, setResidentRoom] = useState(null);
     const [selectedRequest, setSelectedRequest] = useState(null);
@@ -43,25 +44,21 @@ export default function Maintenance() {
         if (role === 'admin' || role === 'staff') {
             // Admin/Staff can see all requests or specific resident requests
             if (residentId) {
-                console.log('Admin/Staff fetching specific resident requests for:', residentId);
                 fetchResidentRequests(residentId);
             } else {
-                console.log('Admin/Staff fetching all maintenance requests');
                 fetchAllRequests();
             }
         } else if (role === 'resident') {
-            // Residents can submit requests but cannot see any requests (only admin/staff can see them)
-            console.log('Resident logged in - hiding all maintenance requests');
-            setRequests([]); // Don't show any requests to residents
-            setLoading(false);
+            // Residents can submit requests and see their own requests
+            fetchResidentOwnRequests();
         } else {
-            console.log('Unknown role or no user session - redirecting');
             navigate('/login');
         }
     }, [residentId, navigate]);
 
     const fetchAllRequests = async () => {
         try {
+            setLoading(true);
             const token = localStorage.getItem("token");
 
             const res = await axios.get(
@@ -71,11 +68,13 @@ export default function Maintenance() {
                 }
             );
 
-            console.log('All requests data:', res.data);
             setRequests(res.data || []);
 
         } catch (err) {
-            console.log(err);
+            console.error('Error fetching all requests:', err);
+            setRequests([]);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -83,56 +82,110 @@ export default function Maintenance() {
         try {
             setLoading(true);
             const token = localStorage.getItem("token");
-            console.log('Fetching maintenance requests for resident:', residentId);
 
-            // First, try to get resident details
-            const residentRes = await axios.get(
-                `https://managementbackend-0njb.onrender.com/api/residents/${residentId}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
-            );
-            setSelectedResident(residentRes.data);
+            // Get resident details and requests in parallel for better performance
+            const [residentRes, requestsRes] = await Promise.allSettled([
+                axios.get(
+                    `https://managementbackend-0njb.onrender.com/api/residents/${residentId}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                ),
+                axios.get(
+                    `https://managementbackend-0njb.onrender.com/api/maintenance/resident/${residentId}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                )
+            ]);
 
-            // Then get maintenance requests for this resident
-            const res = await axios.get(
-                `https://managementbackend-0njb.onrender.com/api/maintenance/resident/${residentId}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
-            );
+            // Handle resident details
+            if (residentRes.status === 'fulfilled') {
+                setSelectedResident(residentRes.data);
+            }
 
-            console.log('Resident maintenance requests:', res.data);
-            setRequests(res.data || []);
-
-        } catch (err) {
-            console.error('Error fetching resident maintenance requests:', err);
-            // If specific endpoint doesn't exist, fallback to filtering all requests
-            try {
-                const token = localStorage.getItem("token");
+            // Handle requests
+            if (requestsRes.status === 'fulfilled' && requestsRes.data) {
+                setRequests(requestsRes.data || []);
+            } else {
+                // Fallback to filtering all requests
                 const allRes = await axios.get(
                     "https://managementbackend-0njb.onrender.com/api/maintenance/",
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                
+                const residentRequests = allRes.data.filter(request => 
+                    request.residentId === residentId || 
+                    request.resident === residentId ||
+                    request.userId === residentId
+                );
+                
+                setRequests(residentRequests);
+            }
+
+        } catch (err) {
+            console.error('Error fetching resident requests:', err);
+            setRequests([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchResidentOwnRequests = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem("token");
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+            const currentResidentId = user._id;
+            
+            console.log('Fetching resident requests for:', currentResidentId);
+
+            // Try the specific endpoint first (more efficient)
+            try {
+                const res = await axios.get(
+                    `https://managementbackend-0njb.onrender.com/api/maintenance/resident/${currentResidentId}`,
                     {
                         headers: { Authorization: `Bearer ${token}` }
                     }
                 );
-                // Filter requests for this resident
-                console.log('All requests data:', allRes.data);
-                console.log('Looking for residentId:', residentId);
                 
-                const residentRequests = allRes.data.filter(request => {
-                    console.log('Checking request:', request._id, 'residentId:', request.residentId, 'resident:', request.resident, 'userId:', request.userId);
-                    return request.residentId === residentId || 
-                           request.resident === residentId ||
-                           request.userId === residentId;
-                });
-                
-                console.log('Filtered resident requests:', residentRequests);
-                setRequests(residentRequests);
-            } catch (fallbackErr) {
-                console.error('Fallback also failed:', fallbackErr);
-                setRequests([]);
+                if (res.data && res.data.length > 0) {
+                    console.log('Found resident requests via specific endpoint:', res.data.length);
+                    setRequests(res.data);
+                    return;
+                }
+            } catch (specificErr) {
+                console.log('Specific endpoint failed, trying fallback...');
             }
+
+            // Fallback: Get all requests and filter (only if needed)
+            const allRes = await axios.get(
+                "https://managementbackend-0njb.onrender.com/api/maintenance/",
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            );
+            
+            // Optimized filtering - check most likely matches first
+            const residentRequests = allRes.data.filter(request => {
+                // Direct resident ID match (most common case)
+                if (request.residentId === currentResidentId) return true;
+                
+                // Nested resident ID match
+                if (request.residentId?._id === currentResidentId) return true;
+                
+                // User ID match
+                if (request.userId === currentResidentId) return true;
+                
+                // Email matches (fallback)
+                if (request.residentId?.email === user.email) return true;
+                if (request.email === user.email) return true;
+                
+                return false;
+            });
+            
+            console.log('Found resident requests via filtering:', residentRequests.length);
+            setRequests(residentRequests);
+
+        } catch (err) {
+            console.error('Error fetching resident requests:', err);
+            setRequests([]);
         } finally {
             setLoading(false);
         }
@@ -164,9 +217,11 @@ export default function Maintenance() {
                 priority: "medium"
             });
 
-            // Only refresh requests list for admin/staff, not residents
+            // Refresh requests list based on user role
             if (userRole === 'admin' || userRole === 'staff') {
                 fetchAllRequests(); // Refresh the list
+            } else if (userRole === 'resident') {
+                fetchResidentOwnRequests(); // Refresh resident's own requests
             }
 
         } catch (err) {
@@ -289,7 +344,7 @@ export default function Maintenance() {
                         </div>
                     </div>
 
-                    <div className={userRole === "resident" ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : ""}>
+                    <div>
                         {/* Request Form - Only for Residents */}
                         {userRole === "resident" && !residentId && (
                             <div className="bg-gray-50 p-6 rounded-lg">
@@ -376,81 +431,121 @@ export default function Maintenance() {
                         )}
 
                         {/* Maintenance Requests List */}
-                        <div className="bg-white p-6 rounded-lg">
-                            {(userRole === 'admin' || userRole === 'staff') && (
+                        <div className="bg-white p-6 rounded-lg mt-8">
+                            {(userRole === 'admin' || userRole === 'staff') ? (
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-semibold text-[#4B2E2B]">
+                                        {residentId ? 
+                                            `${selectedResident?.name || 'Resident'}'s Maintenance Requests` : 
+                                            'All Maintenance Requests'
+                                        }
+                                    </h2>
+                                    <div className="flex items-center gap-2">
+                                        <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
+                                        <select
+                                            value={statusFilter}
+                                            onChange={(e) => setStatusFilter(e.target.value)}
+                                            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                        >
+                                            <option value="all">All Status</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="in-progress">In Progress</option>
+                                            <option value="completed">Completed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            ) : userRole === 'resident' && (
                                 <h2 className="text-xl font-semibold text-[#4B2E2B] mb-4">
-                                    {residentId ? 
-                                        `${selectedResident?.name || 'Resident'}'s Maintenance Requests` : 
-                                        'All Maintenance Requests'
-                                    }
+                                    My Maintenance Requests
                                 </h2>
                             )}
-
-                            {loading ? (
-                                <div className="text-center py-8 text-gray-500">
-                                    Loading maintenance requests...
-                                </div>
-                            ) : requests.length === 0 && (userRole === 'admin' || userRole === 'staff') ? (
-                                <div className="text-center py-8 text-gray-500">
-                                    No maintenance requests found.
-                                </div>
-                            ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        {(userRole === 'admin' || userRole === 'staff') && (
-                                            <thead className="bg-gray-50">
-                                                <tr>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Issue
-                                                    </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Priority
-                                                    </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Status
-                                                    </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        View Details
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                        )}
-                                        <tbody className="bg-white divide-y divide-gray-200">
-                                            {requests.map((request) => (
-                                                <tr key={request._id}>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="text-sm text-gray-900">
-                                                            {request.issueTitle}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${request.priority === 'high' ? 'bg-red-100 text-red-800' :
-                                                            request.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                                                                'bg-green-100 text-green-800'
-                                                            }`}>
-                                                            {request.priority}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${request.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                                            request.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                                                                'bg-gray-100 text-gray-800'
-                                                            }`}>
-                                                            {request.status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <button
-                                                            className="text-green-600 hover:text-green-900"
-                                                            onClick={() => setSelectedRequest(request)}
-                                                        >
+                            {(userRole === 'admin' || userRole === 'staff' || userRole === 'resident') && (
+                                <div>
+                                    {loading ? (
+                                        <div className="text-center py-8 text-gray-500">
+                                            Loading maintenance requests...
+                                        </div>
+                                    ) : requests.length === 0 ? (
+                                        <div className="text-center py-8 text-gray-500">
+                                            {userRole === 'resident' ? 
+                                                'No maintenance requests' : 
+                                                'No maintenance requests found.'
+                                            }
+                                        </div>
+                                    ) : (
+                                        <div className="overflow-x-auto">
+                                            <table className="min-w-full divide-y divide-gray-200">
+                                                <thead className="bg-gray-50">
+                                                    <tr>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Issue
+                                                        </th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Priority
+                                                        </th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Status
+                                                        </th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                             View Details
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="bg-white divide-y divide-gray-200">
+                                                    {requests
+                                                        .filter((request) => {
+                                                            if (statusFilter === 'all') return true;
+                                                            return request.status === statusFilter;
+                                                        })
+                                                        .map((request) => (
+                                                        <tr key={request._id}>
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <div className="text-sm text-gray-900">
+                                                                    {request.issueTitle}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${request.priority === 'high' ? 'bg-red-100 text-red-800' :
+                                                                    request.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                                                        'bg-green-100 text-green-800'
+                                                                    }`}>
+                                                                    {request.priority}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${request.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                                                    request.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                                                                        'bg-gray-100 text-gray-800'
+                                                                    }`}>
+                                                                    {request.status}
+                                                                </span>
+                                                            </td>
+                                                            {(userRole === 'admin' || userRole === 'staff') && (
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                                    <button
+                                                                        className="text-green-600 hover:text-green-900"
+                                                                        onClick={() => setSelectedRequest(request)}
+                                                                    >
+                                                                        View Details
+                                                                    </button>
+                                                                </td>
+                                                            )}
+                                                            {userRole === 'resident' && (
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                                    <button
+                                                                        className="text-green-600 hover:text-green-900"
+                                                                        onClick={() => setSelectedRequest(request)}
+                                                                    >
+                                                                        View Details
+                                                                    </button>
+                                                                </td>
+                                                            )}
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -513,29 +608,31 @@ export default function Maintenance() {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Actions</label>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => {
-                                            updateStatus(selectedRequest._id, 'completed');
-                                            setSelectedRequest(null);
-                                        }}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                    >
-                                        Mark Complete
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            updateStatus(selectedRequest._id, 'in-progress');
-                                            setSelectedRequest(null);
-                                        }}
-                                        className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
-                                    >
-                                        In Progress
-                                    </button>
+                            {(userRole === 'admin' || userRole === 'staff') && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Actions</label>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                updateStatus(selectedRequest._id, 'completed');
+                                                setSelectedRequest(null);
+                                            }}
+                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                        >
+                                            Mark Complete
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                updateStatus(selectedRequest._id, 'in-progress');
+                                                setSelectedRequest(null);
+                                            }}
+                                            className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+                                        >
+                                            In Progress
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>

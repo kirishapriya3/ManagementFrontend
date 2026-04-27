@@ -11,6 +11,7 @@ export default function AdminResidentDetails() {
   const [maintenanceData, setMaintenanceData] = useState(null);
   const [maintenanceLoading, setMaintenanceLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -133,12 +134,37 @@ export default function AdminResidentDetails() {
     }
   };
 
-  const filteredResidents = residents.filter(resident =>
-    resident.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    resident.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    resident.phone?.includes(searchTerm) ||
-    resident.roomNumber?.toString().includes(searchTerm)
-  );
+  const filteredResidents = residents.filter(resident => {
+    // Apply search filter - only name, room number, and capacity
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = 
+      // Search by resident name
+      resident.name?.toLowerCase().includes(searchLower) ||
+      // Search by room number (handle N/A case)
+      (resident.roomId?.roomNumber && resident.roomId.roomNumber.toLowerCase().includes(searchLower)) ||
+      // Search for N/A in room number
+      (!resident.roomId?.roomNumber && (searchLower.includes('n') || searchLower.includes('n/a'))) ||
+      // Search by room capacity - handle both numeric and "X persons" format
+      (resident.roomId?.capacity && (
+        resident.roomId.capacity.toString().includes(searchTerm) ||
+        `${resident.roomId.capacity} persons`.toLowerCase().includes(searchLower) ||
+        `${resident.roomId.capacity} person`.toLowerCase().includes(searchLower)
+      )) ||
+      // Search for N/A in capacity
+      (!resident.roomId?.capacity && (searchLower.includes('n') || searchLower.includes('n/a')));
+    
+    // Apply status filter
+    let matchesStatus = true;
+    if (statusFilter === 'active') {
+      matchesStatus = (resident.roomId?.roomNumber !== 'N/A' && resident.roomId?.roomNumber) && 
+                     (resident.status === 'active' || !resident.status);
+    } else if (statusFilter === 'inactive') {
+      matchesStatus = (resident.roomId?.roomNumber === 'N/A' || !resident.roomId?.roomNumber) || 
+                     resident.status === 'inactive';
+    }
+    
+    return matchesSearch && matchesStatus;
+  });
 
   if (loading && !selectedResident) {
     return (
@@ -425,13 +451,15 @@ export default function AdminResidentDetails() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
 
-              <button
-                onClick={fetchResidents}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                disabled={loading}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
-                {loading ? 'Refreshing...' : 'Refresh'}
-              </button>
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
             </div>
           </div>
 
@@ -462,11 +490,17 @@ export default function AdminResidentDetails() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resident.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          (resident.roomId?.roomNumber === 'N/A' || !resident.roomId?.roomNumber)
+                            ? 'bg-gray-100 text-gray-800'
+                            : resident.status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
                           }`}>
-                          {resident.status || 'Active'}
+                          {(resident.roomId?.roomNumber === 'N/A' || !resident.roomId?.roomNumber) 
+                            ? 'Inactive' 
+                            : resident.status || 'Active'
+                          }
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

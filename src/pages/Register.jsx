@@ -14,11 +14,72 @@ export default function Register() {
     phone: ""
   });
 
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: ""
+  });
+
+  const validateField = (name, value) => {
+    let error = "";
+    
+    switch (name) {
+      case 'name':
+        if (!value) {
+          error = "Name is required";
+        } else if (!/^[A-Za-z0-9\s]+$/.test(value)) {
+          error = "Name should contain only alphabets and numbers";
+        } else if (value.length < 2) {
+          error = "Name should be at least 2 characters";
+        }
+        break;
+      
+      case 'email':
+        if (!value) {
+          error = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          error = "Please enter a valid email address";
+        }
+        break;
+      
+      case 'password':
+        if (!value) {
+          error = "Password is required";
+        } else if (value.length < 6) {
+          error = "Password should be at least 6 characters";
+        } else if (!/^[A-Za-z0-9]+$/.test(value)) {
+          error = "Password should contain only alphabets and numbers";
+        }
+        break;
+      
+      case 'phone':
+        if (!value) {
+          error = "Phone number is required";
+        } else if (!/^[0-9]{10}$/.test(value)) {
+          error = "Phone number should be exactly 10 digits";
+        }
+        break;
+      
+      default:
+        break;
+    }
+    
+    return error;
+  };
+
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    
+    // Clear previous error for this field
+    setErrors(prev => ({ ...prev, [name]: "" }));
+    
+    // Validate field
+    const error = validateField(name, value);
+    
+    // Update form and errors
+    setForm(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: error }));
   };
 
   const handleBack = () => {
@@ -28,6 +89,25 @@ export default function Register() {
   const handleSubmit = async (e) => {
 
     e.preventDefault();
+
+    // Validate all fields before submission
+    const nameError = validateField('name', form.name);
+    const emailError = validateField('email', form.email);
+    const passwordError = validateField('password', form.password);
+    const phoneError = validateField('phone', form.phone);
+
+    // Update all errors
+    setErrors({
+      name: nameError,
+      email: emailError,
+      password: passwordError,
+      phone: phoneError
+    });
+
+    // Check if there are any errors
+    if (nameError || emailError || passwordError || phoneError) {
+      return;
+    }
 
     try {
 
@@ -51,7 +131,7 @@ export default function Register() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen relative bg-[#4B2E2B] mt-10">
+    <div className="flex justify-center items-center min-h-screen relative bg-[#4B2E2B] mt-10 py-20">
       {/* Back Button */}
       <button
         onClick={handleBack}
@@ -70,31 +150,43 @@ export default function Register() {
         <input
           name="name"
           placeholder="Name"
-          className="border p-2 w-full border-[#4B2E2B] text-[#4B2E2B]"
+          className={`border p-2 w-full border-[#4B2E2B] text-[#4B2E2B] ${errors.name ? 'border-red-500' : ''}`}
           onChange={handleChange}
         />
+        {errors.name && (
+          <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+        )}
 
         <input
           name="email"
           placeholder="Email"
-          className="border p-2 w-full border-[#4B2E2B] text-[#4B2E2B]"
+          className={`border p-2 w-full border-[#4B2E2B] text-[#4B2E2B] ${errors.email ? 'border-red-500' : ''}`}
           onChange={handleChange}
         />
+        {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+        )}
 
         <input
           name="password"
           type="password"
           placeholder="Password"
-          className="border p-2 w-full border-[#4B2E2B] text-[#4B2E2B]"
+          className={`border p-2 w-full border-[#4B2E2B] text-[#4B2E2B] ${errors.password ? 'border-red-500' : ''}`}
           onChange={handleChange}
         />
+        {errors.password && (
+          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+        )}
 
         <input
           name="phone"
           placeholder="Phone Number"
-          className="border p-2 w-full border-[#4B2E2B] text-[#4B2E2B]"
+          className={`border p-2 w-full border-[#4B2E2B] text-[#4B2E2B] ${errors.phone ? 'border-red-500' : ''}`}
           onChange={handleChange}
         />
+        {errors.phone && (
+          <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+        )}
 
         <select
           name="role"

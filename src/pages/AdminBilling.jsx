@@ -8,6 +8,7 @@ export default function AdminBilling() {
   const [loading, setLoading] = useState(false);
   const [selectedResident, setSelectedResident] = useState(null);
   const [specificResident, setSpecificResident] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const residentId = searchParams.get('resident');
@@ -244,7 +245,22 @@ export default function AdminBilling() {
           {/* Residents List */}
           <div className="bg-white rounded-lg shadow-md border">
             <div className="p-6 border-b">
-              <h3 className="text-xl font-semibold text-gray-800">Residents Payment Status</h3>
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold text-gray-800">Residents Payment Status</h3>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="unpaid">Unpaid</option>
+                    <option value="na">N/A</option>
+                  </select>
+                </div>
+              </div>
             </div>
             {billingOverview.residents.length > 0 ? (
               <div className="overflow-x-auto">
@@ -259,7 +275,15 @@ export default function AdminBilling() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {billingOverview.residents.map((resident) => (
+                    {billingOverview.residents
+                      .filter((resident) => {
+                        if (statusFilter === 'all') return true;
+                        if (statusFilter === 'paid') return resident.totalDue === 0 && resident.roomNumber !== 'N/A';
+                        if (statusFilter === 'unpaid') return resident.totalDue > 0 && resident.roomNumber !== 'N/A';
+                        if (statusFilter === 'na') return resident.roomNumber === 'N/A';
+                        return true;
+                      })
+                      .map((resident) => (
                       <tr key={resident.residentId}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>

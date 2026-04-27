@@ -176,16 +176,38 @@ export default function Payment() {
 
     const downloadInvoice = async (invoiceId) => {
         try {
-            const token = localStorage.getItem("token");
-            console.log('Token found:', !!token);
+            console.log('Starting invoice download for ID:', invoiceId);
+            
+            let token = localStorage.getItem("token");
+            console.log('Initial token found:', !!token);
 
+            // If no token or token is invalid, try to refresh user session
+            if (!token) {
+                console.log('No token found, refreshing session...');
+                await refreshUserSession();
+                token = localStorage.getItem("token");
+                console.log('Token after refresh:', !!token);
+            }
+
+            if (!token) {
+                alert('Please login again to download invoice');
+                return;
+            }
+
+            const downloadUrl = `https://managementbackend-0njb.onrender.com/api/invoices/${invoiceId}/download`;
+            console.log('Attempting download from:', downloadUrl);
+            
             const response = await axios.get(
-                `https://managementbackend-0njb.onrender.com/api/invoices/${invoiceId}/download`,
+                downloadUrl,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                     responseType: 'blob'
                 }
             );
+
+            console.log('Download response received, status:', response.status);
+            console.log('Response data type:', typeof response.data);
+            console.log('Response data size:', response.data.size || 'unknown');
 
             // Create download link
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -196,10 +218,88 @@ export default function Payment() {
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
+            
+            console.log('Invoice download completed successfully');
 
         } catch (error) {
             console.error('Error downloading invoice:', error);
-            alert('Failed to download invoice');
+            console.error('Error response status:', error.response?.status);
+            console.error('Error response data:', error.response?.data);
+            
+            // If it's an authentication error, try to refresh session and retry
+            if (error.response?.status === 401) {
+                console.log('Authentication error, attempting to refresh session...');
+                await refreshUserSession();
+                
+                // Retry the download once
+                try {
+                    const newToken = localStorage.getItem("token");
+                    if (newToken) {
+                        console.log('Retrying download with new token');
+                        const response = await axios.get(
+                            `https://managementbackend-0njb.onrender.com/api/invoices/${invoiceId}/download`,
+                            {
+                                headers: { Authorization: `Bearer ${newToken}` },
+                                responseType: 'blob'
+                            }
+                        );
+                        
+                        // Create download link
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', `invoice-${invoiceId}.pdf`);
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        window.URL.revokeObjectURL(url);
+                        
+                        console.log('Retry download successful');
+                        return;
+                    }
+                } catch (retryError) {
+                    console.error('Retry failed:', retryError);
+                }
+            }
+            
+            alert('Failed to download invoice. Please try logging in again.');
+        }
+    };
+
+    const refreshUserSession = async () => {
+        try {
+            // Get current user data from localStorage to refresh session
+            const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+            const currentRole = localStorage.getItem("role");
+            
+            if (!currentUser || !currentRole) {
+                console.log('No user data found for session refresh');
+                return;
+            }
+
+            // Try to get fresh user data with existing token
+            const oldToken = localStorage.getItem("token");
+            if (!oldToken) return;
+
+            const res = await axios.get(
+                "https://managementbackend-0njb.onrender.com/api/auth/profile",
+                {
+                    headers: { Authorization: `Bearer ${oldToken}` }
+                }
+            );
+
+            // Update localStorage with fresh user data
+            if (res.data) {
+                localStorage.setItem("user", JSON.stringify(res.data));
+                localStorage.setItem("role", res.data.role);
+                console.log('User session refreshed successfully:', res.data.name);
+            }
+        } catch (error) {
+            console.error('Error refreshing user session:', error);
+            // If refresh fails, we might need to clear the session
+            // localStorage.removeItem("token");
+            // localStorage.removeItem("user");
+            // localStorage.removeItem("role");
         }
     };
 
@@ -334,7 +434,20 @@ export default function Payment() {
                             </p>
                         </div>
                         <button
-                            onClick={() => downloadInvoice(lastInvoice.id)}
+                            onClick={() => {
+                                console.log('Download button clicked, lastInvoice:', lastInvoice);
+                                console.log('Invoice ID options:', {
+                                    id: lastInvoice.id,
+                                    _id: lastInvoice._id,
+                                    invoiceId: lastInvoice.invoiceId
+                                });
+                                const invoiceId = lastInvoice._id || lastInvoice.id || lastInvoice.invoiceId;
+                                if (invoiceId) {
+                                    downloadInvoice(invoiceId);
+                                } else {
+                                    alert('Invoice ID not found. Cannot download invoice.');
+                                }
+                            }}
                             className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-200 flex items-center gap-2"
                         >
                             📄 Download Invoice
