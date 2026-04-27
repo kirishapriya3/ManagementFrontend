@@ -132,56 +132,15 @@ export default function Maintenance() {
             setLoading(true);
             const token = localStorage.getItem("token");
             const user = JSON.parse(localStorage.getItem("user") || "{}");
-            const currentResidentId = user._id;
-            
-            console.log('Fetching resident requests for:', currentResidentId);
 
-            // Try the specific endpoint first (more efficient)
-            try {
-                const res = await axios.get(
-                    `https://managementbackend-0njb.onrender.com/api/maintenance/resident/${currentResidentId}`,
-                    {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }
-                );
-                
-                if (res.data && res.data.length > 0) {
-                    console.log('Found resident requests via specific endpoint:', res.data.length);
-                    setRequests(res.data);
-                    return;
-                }
-            } catch (specificErr) {
-                console.log('Specific endpoint failed, trying fallback...');
-            }
-
-            // Fallback: Get all requests and filter (only if needed)
-            const allRes = await axios.get(
-                "https://managementbackend-0njb.onrender.com/api/maintenance/",
+            const res = await axios.get(
+                `https://managementbackend-0njb.onrender.com/api/maintenance/resident/${user._id}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
             );
-            
-            // Optimized filtering - check most likely matches first
-            const residentRequests = allRes.data.filter(request => {
-                // Direct resident ID match (most common case)
-                if (request.residentId === currentResidentId) return true;
-                
-                // Nested resident ID match
-                if (request.residentId?._id === currentResidentId) return true;
-                
-                // User ID match
-                if (request.userId === currentResidentId) return true;
-                
-                // Email matches (fallback)
-                if (request.residentId?.email === user.email) return true;
-                if (request.email === user.email) return true;
-                
-                return false;
-            });
-            
-            console.log('Found resident requests via filtering:', residentRequests.length);
-            setRequests(residentRequests);
+
+            setRequests(res.data || []);
 
         } catch (err) {
             console.error('Error fetching resident requests:', err);
@@ -461,7 +420,11 @@ export default function Maintenance() {
                             )}
                             {(userRole === 'admin' || userRole === 'staff' || userRole === 'resident') && (
                                 <div>
-                                    {loading ? (
+                                    {userRole === 'resident' && (!residentRoom || residentRoom === 'N/A' || residentRoom === '') ? (
+                                        <div className="text-center py-8 text-gray-500">
+                                            No maintenance requests
+                                        </div>
+                                    ) : loading ? (
                                         <div className="text-center py-8 text-gray-500">
                                             Loading maintenance requests...
                                         </div>
@@ -494,28 +457,8 @@ export default function Maintenance() {
                                                 <tbody className="bg-white divide-y divide-gray-200">
                                                     {requests
                                                         .filter((request) => {
-                                                            // Apply status filter
+                                                            // Apply status filter only
                                                             if (statusFilter !== 'all' && request.status !== statusFilter) return false;
-                                                            
-                                                            // For residents, only show their own requests
-                                                            if (userRole === 'resident') {
-                                                                const user = JSON.parse(localStorage.getItem("user") || "{}");
-                                                                const currentResidentId = user._id;
-                                                                
-                                                                // Direct resident ID match
-                                                                if (request.residentId === currentResidentId) return true;
-                                                                // Nested resident ID match
-                                                                if (request.residentId?._id === currentResidentId) return true;
-                                                                // User ID match
-                                                                if (request.userId === currentResidentId) return true;
-                                                                // Email matches (fallback)
-                                                                if (request.residentId?.email === user.email) return true;
-                                                                if (request.email === user.email) return true;
-                                                                
-                                                                return false;
-                                                            }
-                                                            
-                                                            // For admin and staff, show all requests
                                                             return true;
                                                         })
                                                         .map((request) => (

@@ -39,7 +39,12 @@ export default function PaymentSuccess() {
             );
 
             if (res.data.invoice) {
+                console.log('Invoice data received:', res.data.invoice);
+                console.log('Invoice ID:', res.data.invoice.id);
+                console.log('Invoice Number:', res.data.invoice.invoiceNumber);
                 setInvoice(res.data.invoice);
+            } else {
+                console.log('No invoice data in response');
             }
 
         } catch (error) {
@@ -77,6 +82,9 @@ export default function PaymentSuccess() {
     };
 
     const downloadInvoice = async (invoiceId) => {
+        console.log('DownloadInvoice called with invoiceId:', invoiceId);
+        console.log('Type of invoiceId:', typeof invoiceId);
+        
         try {
             let token = localStorage.getItem("token");
             console.log('Initial token found:', !!token);
@@ -206,7 +214,16 @@ export default function PaymentSuccess() {
                                     Invoice {invoice.invoiceNumber} has been created successfully.
                                 </p>
                                 <button
-                                    onClick={() => downloadInvoice(invoice.id)}
+                                    onClick={() => {
+                                        console.log('Download button clicked, invoice:', invoice);
+                                        console.log('Invoice.id:', invoice.id);
+                                        if (invoice && invoice.id) {
+                                            downloadInvoice(invoice.id);
+                                        } else {
+                                            console.error('No valid invoice ID available');
+                                            alert('Invoice ID not available. Please try again.');
+                                        }
+                                    }}
                                     className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center justify-center gap-2"
                                 >
                                     📄 Download Invoice
