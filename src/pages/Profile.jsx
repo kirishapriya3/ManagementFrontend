@@ -11,6 +11,11 @@ export default function Profile() {
     email: "",
     phone: ""
   });
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    phone: ""
+  });
   const [updateLoading, setUpdateLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -59,16 +64,78 @@ export default function Profile() {
     }
   };
 
+  const validateField = (name, value) => {
+    let error = "";
+    
+    switch (name) {
+      case 'name':
+        if (!value) {
+          error = "Name is required";
+        } else if (!/^[A-Za-z0-9\s]+$/.test(value)) {
+          error = "Name should contain only alphabets and numbers";
+        } else if (value.length < 2) {
+          error = "Name should be at least 2 characters";
+        }
+        break;
+      
+      case 'email':
+        if (!value) {
+          error = "Email is required";
+        } else if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(value)) {
+          error = "Only Gmail addresses are allowed (example@gmail.com)";
+        }
+        break;
+      
+      case 'phone':
+        if (!value) {
+          error = "Phone number is required";
+        } else if (!/^[0-9]{10}$/.test(value)) {
+          error = "Phone number should be exactly 10 digits";
+        }
+        break;
+      
+      default:
+        break;
+    }
+    
+    return error;
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    
+    // Clear previous error for this field
+    setErrors(prev => ({ ...prev, [name]: "" }));
+    
+    // Validate field
+    const error = validateField(name, value);
+    
+    // Update form and errors
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: error }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUpdateLoading(true);
+
+    // Validate all fields before submission
+    const nameError = validateField('name', formData.name);
+    const emailError = validateField('email', formData.email);
+    const phoneError = validateField('phone', formData.phone);
+
+    // Update all errors
+    setErrors({
+      name: nameError,
+      email: emailError,
+      phone: phoneError
+    });
+
+    // Check if there are any errors
+    if (nameError || emailError || phoneError) {
+      setUpdateLoading(false);
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -184,8 +251,12 @@ export default function Profile() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Enter name (alphabets and numbers only)"
                 />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                )}
               </div>
 
               <div>
@@ -198,8 +269,12 @@ export default function Profile() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Enter Gmail address (example@gmail.com)"
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
               </div>
 
               <div>
@@ -211,9 +286,13 @@ export default function Profile() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter phone number"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Enter 10-digit phone number"
+                  maxLength="10"
                 />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                )}
               </div>
 
 

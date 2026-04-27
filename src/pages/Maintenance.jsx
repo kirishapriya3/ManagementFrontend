@@ -494,8 +494,29 @@ export default function Maintenance() {
                                                 <tbody className="bg-white divide-y divide-gray-200">
                                                     {requests
                                                         .filter((request) => {
-                                                            if (statusFilter === 'all') return true;
-                                                            return request.status === statusFilter;
+                                                            // Apply status filter
+                                                            if (statusFilter !== 'all' && request.status !== statusFilter) return false;
+                                                            
+                                                            // For residents, only show their own requests
+                                                            if (userRole === 'resident') {
+                                                                const user = JSON.parse(localStorage.getItem("user") || "{}");
+                                                                const currentResidentId = user._id;
+                                                                
+                                                                // Direct resident ID match
+                                                                if (request.residentId === currentResidentId) return true;
+                                                                // Nested resident ID match
+                                                                if (request.residentId?._id === currentResidentId) return true;
+                                                                // User ID match
+                                                                if (request.userId === currentResidentId) return true;
+                                                                // Email matches (fallback)
+                                                                if (request.residentId?.email === user.email) return true;
+                                                                if (request.email === user.email) return true;
+                                                                
+                                                                return false;
+                                                            }
+                                                            
+                                                            // For admin and staff, show all requests
+                                                            return true;
                                                         })
                                                         .map((request) => (
                                                         <tr key={request._id}>
