@@ -132,9 +132,24 @@ export default function Maintenance() {
             setLoading(true);
             const token = localStorage.getItem("token");
             const user = JSON.parse(localStorage.getItem("user") || "{}");
+            
+            console.log('User data from localStorage:', user);
+            console.log('User ID:', user._id);
+            console.log('User ID type:', typeof user._id);
+            console.log('User keys:', Object.keys(user));
+
+            // If user._id is not available, try alternative fields
+            const userId = user._id || user.id || user.userId || user.sub;
+            console.log('Final user ID to use:', userId);
+
+            if (!userId) {
+                console.error('No valid user ID found in user data');
+                setRequests([]);
+                return;
+            }
 
             const res = await axios.get(
-                `https://managementbackend-0njb.onrender.com/api/maintenance/resident/${user._id}`,
+                `https://managementbackend-0njb.onrender.com/api/maintenance/resident/${userId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
