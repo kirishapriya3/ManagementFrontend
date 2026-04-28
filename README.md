@@ -113,7 +113,7 @@ src/
 
 ## 👩‍💻 Author
 
-Developed by Kirisha Priya
+Developed by Kirisha 
 
 ---
 
