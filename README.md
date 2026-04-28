@@ -68,6 +68,24 @@ Frontend is deployed using Netlify.
 
 ---
 
+## 🔐 Demo Credentials
+
+You can use the following demo accounts to explore the application:
+
+### 👨‍💼 Admin
+- Email: admin@gmail.com
+- Password: admin123
+
+### 🧑 Resident
+- Email: test7@gmail.com
+- Password: 123456
+
+### 🛠️ Staff
+- Email: staff@gmail.com
+- Password: staff123
+
+⚠️ Note: These are demo accounts created for testing purposes.
+
 ## 🔗 Backend Connection
 
 Make sure backend is running or deployed.
